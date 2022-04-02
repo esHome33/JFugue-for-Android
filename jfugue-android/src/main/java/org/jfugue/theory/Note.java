@@ -656,7 +656,7 @@ public class Note implements PatternProducer
 			letterFR = "Do";
 			break;
 		case "D":
-			letterFR = "Ré";
+			letterFR = "RÃ©";
 			break;
 		case "E":
 			letterFR = "Mi";
@@ -801,10 +801,10 @@ public class Note implements PatternProducer
 	}
 	
 	/**
-	 * utilise le compte d'accidents pour donner une représentation des accidents
+	 * utilise le compte d'accidents pour donner une reprï¿½sentation des accidents
 	 * @author Etienne
-	 * @param nombre le nombre d'accidents (-2 correspond à 2 bémols, 0 à aucun accident et 1 à un dièse
-	 * @return l'accident correspondant au nombre indiqué
+	 * @param nombre le nombre d'accidents (-2 correspond ï¿½ 2 bï¿½mols, 0 ï¿½ aucun accident et 1 ï¿½ un diï¿½se
+	 * @return l'accident correspondant au nombre indiquï¿½
 	 */
 	private String getAccidents(int nombre) {
 		switch(nombre) {
@@ -841,8 +841,8 @@ public class Note implements PatternProducer
 		if(nv_note > 'G') {
 			nv_note = (char)('A' + nv_note - 'H');
 		}
-		// pour déterminer l'accident de la note d'arrivée, on va créer un intervalle et voir s'il manque
-		// quelque chose pour avoir les halfsteps demandés.
+		// pour dï¿½terminer l'accident de la note d'arrivï¿½e, on va crï¿½er un intervalle et voir s'il manque
+		// quelque chose pour avoir les halfsteps demandï¿½s.
 		String note_depart,note_arrivee;
 		note_depart = ton + getAccidents(acc);
 		note_arrivee = nv_note+"";
@@ -850,7 +850,7 @@ public class Note implements PatternProducer
 		String prems = ecart.getNthInterval(1);
 		int halfs_trouves = Intervals.getHalfsteps(prems);
 		int delta = halfs_trouves - decal_halfsteps;
-		// en fonction du delta, on ajoute un bémol ou un dièse
+		// en fonction du delta, on ajoute un bï¿½mol ou un diï¿½se
 		String nv_acc;
 		if(delta > 1) {
 			nv_acc = "BB";
@@ -959,7 +959,7 @@ public class Note implements PatternProducer
 		public static final String UNDEFINED = "undefined"; 
 		
 		/**
-		 * retrouve le nom de l'intervalle à l'aide de l'écart entre notes et nombre de 1/2 tons.
+		 * retrouve le nom de l'intervalle ï¿½ l'aide de l'ï¿½cart entre notes et nombre de 1/2 tons.
 		 * @param ecart_note
 		 * @param num_halfsteps
 		 * @return nom de l'intervalle

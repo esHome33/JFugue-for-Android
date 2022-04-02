@@ -107,9 +107,9 @@ public class Intervals implements PatternProducer, NoteProducer
 	}
 
 	/**
-	 * Fournit le pattern associé à cet intervalle et la rootNote (il faut qu'elle soit indiquée).
-	 * utilise le constructeur de Note(byte value). La note peut donc être bémolisée alors que l'intervalle
-	 * ait prévu qu'il y ait un #...
+	 * Fournit le pattern associe a cet intervalle et la rootNote (il faut qu'elle soit indiquee).
+	 * utilise le constructeur de Note(byte value). La note peut donc etre bemolisee alors que l'intervalle
+	 * ait prevu qu'il y ait un #...
 	 */
 	@Override
 	public Pattern getPattern() {
@@ -133,7 +133,7 @@ public class Intervals implements PatternProducer, NoteProducer
 	}
 	
 	/**
-	 * Fournit les notes à partir du pattern de cet intervalle.
+	 * Fournit les notes ï¿½ partir du pattern de cet intervalle.
 	 */
 	@Override
 	public List<Note> getNotes() {
@@ -148,12 +148,12 @@ public class Intervals implements PatternProducer, NoteProducer
 	}
 	
 	/**
-	 * Fournit les notes mais en s'assurant de la cohérence des bémols et des dièses dans le pattern. Cette fonction 
-	 * répond mieux à mes besoins que la fonction {@link #getNotes()} standard de jFugue, qui fournit les notes 
-	 * brutalement à partir du Pattern.
+	 * Fournit les notes mais en s'assurant de la cohï¿½rence des bï¿½mols et des diï¿½ses dans le pattern. Cette fonction 
+	 * rï¿½pond mieux ï¿½ mes besoins que la fonction {@link #getNotes()} standard de jFugue, qui fournit les notes 
+	 * brutalement ï¿½ partir du Pattern.
 	 *  
 	 * @author Etienne
-	 * @param disposition +1 si on veut des notes avec des # et -1 si on veut des notes avec des bémols.
+	 * @param disposition +1 si on veut des notes avec des # et -1 si on veut des notes avec des bï¿½mols.
 	 * @return liste des notes composant cet intervalle
 	 */
 	public List<Note> getNotes(int disposition) {
@@ -174,19 +174,19 @@ public class Intervals implements PatternProducer, NoteProducer
 	}
 	
 	/**
-	 * Fournit les notes demandées de cet intervalle (sans indication d'octave). 
-	 * La demande se fait via le paramètre.
-	 * Si une note demandée n'est pas présente, le tableau de retour sera vide ou comportera 
-	 * moins d'éléments que le nombre demandé.
+	 * Fournit les notes demandï¿½es de cet intervalle (sans indication d'octave). 
+	 * La demande se fait via le paramï¿½tre.
+	 * Si une note demandï¿½e n'est pas prï¿½sente, le tableau de retour sera vide ou comportera 
+	 * moins d'ï¿½lï¿½ments que le nombre demandï¿½.
 	 * <br><br>
 	 * ATTENTION : il faut que l'intervalle ait une root note !
 	 * 
-	 * @param notes_number chaine qui contient le numéro (base 1) des notes souhaitées séparées par 
+	 * @param notes_number chaine qui contient le numï¿½ro (base 1) des notes souhaitï¿½es sï¿½parï¿½es par 
 	 * 			des espaces. Exemple : "1 3 5"
-	 * 			pour demander les notes n°1, n°3 et n°5 de cet intervalle. Si l'intervalle contient moins de 
-	 * 			5 notes, le retour sera limité aux notes trouvées.
-	 * @return un tableau contenant les notes demandées sans octave lorsqu'elles ont été trouvées 
-	 * 			dans cet intervalle (peut éventuellement être un tableau vide).
+	 * 			pour demander les notes nï¿½1, nï¿½3 et nï¿½5 de cet intervalle. Si l'intervalle contient moins de 
+	 * 			5 notes, le retour sera limitï¿½ aux notes trouvï¿½es.
+	 * @return un tableau contenant les notes demandï¿½es sans octave lorsqu'elles ont ï¿½tï¿½ trouvï¿½es 
+	 * 			dans cet intervalle (peut ï¿½ventuellement ï¿½tre un tableau vide).
 	 * @author Etienne
 	 */
 	public Note[] getSomeNotes(String notes_number) {

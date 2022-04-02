@@ -656,7 +656,7 @@ public class Chord implements PatternProducer, Comparable<Chord>
 		}
 
 		// on parcourt les notes de co1 et on essaye de l'oter de co2 ... si elle n'y est pas, c'est que les deux accord
-		// ne sont pas égaux.
+		// ne sont pas egaux.
 		for(String s : co1) {
 			if(!co2.isEmpty()) {
 				boolean res = co2.remove(s);

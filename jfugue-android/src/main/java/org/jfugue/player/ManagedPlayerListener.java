@@ -19,7 +19,7 @@
 
 package org.jfugue.player;
 
-import javax.sound.midi.Sequence;
+import jp.kshoji.javax.sound.midi.Sequence;
 
 public interface ManagedPlayerListener 
 {

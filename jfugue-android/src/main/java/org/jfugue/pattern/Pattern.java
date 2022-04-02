@@ -445,7 +445,7 @@ public class Pattern implements PatternProducer, TokenProducer
 	 * Saves this pattern to a file (without any comments included).
 	 * @param file the file to save this pattern to.
 	 * @return the saved Pattern (for chaining)
-	 * @throws IOException
+	 * @throws IOException error in save file
 	 */
 	public Pattern save(File file) throws IOException {
 	    return save(file, (String)null);
