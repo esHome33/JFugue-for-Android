@@ -19,6 +19,7 @@
 
 package org.staccato.functions;
 
+import org.jfugue.midi.MidiTools;
 import org.staccato.StaccatoParserContext;
 import org.staccato.SubparserFunction;
 
@@ -44,9 +45,25 @@ public class ControllerFunction implements SubparserFunction
 	public void apply(String parameters, StaccatoParserContext context) {
 		String[] params = parameters.split(",");
 		if (params.length == 2) {
-			context.getParser().fireControllerEventParsed(Byte.parseByte(params[0].trim()), Byte.parseByte(params[1].trim()));	
+		    int controllerNumber = 0;
+            String controllerId = params[0].trim();
+            if (controllerId.matches("\\d+")) {
+                controllerNumber = Integer.parseInt(controllerId);
+            } else {
+                if (controllerId.charAt(0) == '[') {
+                    controllerId = controllerId.substring(1, controllerId.length()-1);
+                }
+                controllerNumber = (Integer)context.getDictionary().get(controllerId);
+            }
+            if (controllerNumber > Byte.MAX_VALUE) {
+                context.getParser().fireControllerEventParsed(MidiTools.getLSB(controllerNumber), MidiTools.getLSB(Integer.parseInt(params[1].trim())));
+                context.getParser().fireControllerEventParsed(MidiTools.getMSB(controllerNumber), MidiTools.getMSB(Integer.parseInt(params[1].trim())));
+            }
+            else {
+                context.getParser().fireControllerEventParsed((byte)controllerNumber, Byte.parseByte(params[1].trim()));
+            }
 		} 
 	}
 	
-	public static String[] NAMES = { "CON", "CONTROLLER" };
+	public static String[] NAMES = { "CE", "CON", "CONTROLLER", "CONTROLLEREVENT" };
 }

@@ -54,7 +54,8 @@ public class GetPatternStats {
     private List<Number> restDurations = new ArrayList<Number>();
     private List<Byte> attacks = new ArrayList<Byte>();
     private List<Byte> decays = new ArrayList<Byte>();
-    private List<TimeEvent> musicEvents= new ArrayList<TimeEvent>();
+    @SuppressWarnings("rawtypes")
+	private List<GetPatternStats.TimeEvent> musicEvents= new ArrayList<GetPatternStats.TimeEvent>();
     private int rhythm, measures = 0;
     private double tickPos = 0;
     private Key key = new Key("Cmaj");
@@ -72,7 +73,7 @@ public class GetPatternStats {
             this.clearLists();
         }
         StaccatoParser sp = new StaccatoParser();
-        Listener l = new Listener();
+        GetPatternStats.Listener l = new GetPatternStats.Listener();
         sp.addParserListener(l);
         sp.parse(pattern.toString());   
         processEvents();
@@ -82,7 +83,7 @@ public class GetPatternStats {
      * 
      * @param midiFile The MIDI file to be parsed.
      * @param clear True to clear previous data, false to add to previous data
-     * @throws java.io.IOException
+     * @throws IOException
      * @throws InvalidMidiDataException
      */
     public void parsePattern(File midiFile, Boolean clear) throws IOException, InvalidMidiDataException {
@@ -195,16 +196,16 @@ public class GetPatternStats {
      * 
      * @return <code>Stats</code> object for pitch
      */
-    public Stats getPitchStats(){
-        return new Stats(pitches);
+    public GetPatternStats.Stats getPitchStats(){
+        return new GetPatternStats.Stats(pitches);
     }
     
     /** Gets <code>Stats</code> object containing note duration N, Average (mean - min), SD, and Range.
      * 
      * @return <code>Stats</code> object for note duration
      */
-    public Stats getDurationStats(){
-        return new Stats(durations);
+    public GetPatternStats.Stats getDurationStats(){
+        return new GetPatternStats.Stats(durations);
     }
     
     /** Gets <code>Stats</code> object containing rest duration N, Average (mean - min), SD, and Range.
@@ -212,8 +213,8 @@ public class GetPatternStats {
      * 
      * @return <code>Stats</code> object for rest duration
      */
-    public Stats getRestStats(){
-        return new Stats(restDurations);
+    public GetPatternStats.Stats getRestStats(){
+        return new GetPatternStats.Stats(restDurations);
     }
     
     /** Gets <code>Stats</code> object containing pitch interval N, Average (mean - min), SD, and Range.
@@ -221,8 +222,8 @@ public class GetPatternStats {
      * 
      * @return <code>Stats</code> object for pitch interval
      */
-    public Stats getIntervalStats(){
-        return new Stats(intervals);
+    public GetPatternStats.Stats getIntervalStats(){
+        return new GetPatternStats.Stats(intervals);
     }
     
     /** Gets <code>Stats</code> object containing inter-onset-interval(IOI) N, Average (mean - min), SD, and Range.
@@ -230,8 +231,8 @@ public class GetPatternStats {
      * 
      * @return <code>Stats</code> object for IOI
      */
-    public Stats getIOIStats(){
-        return new Stats(interOI);
+    public GetPatternStats.Stats getIOIStats(){
+        return new GetPatternStats.Stats(interOI);
     }
     
     /** Gets number of syncopations.
@@ -251,17 +252,18 @@ public class GetPatternStats {
        * 
        * @return  <code>Stats</code> object for harmonics
        */ 
-    public Stats getHarmonicStats(){
-        return new Stats(degreeNonDiatonic);
+    public GetPatternStats.Stats getHarmonicStats(){
+        return new GetPatternStats.Stats(degreeNonDiatonic);
     }
    
     /** Sorts time events for chronological processing
      * 
      */
-    private void sortTimeEvents(){
-      Collections.sort(musicEvents, new Comparator<TimeEvent>() {
+    @SuppressWarnings("rawtypes")
+	private void sortTimeEvents(){
+      Collections.sort(musicEvents, new Comparator<GetPatternStats.TimeEvent>() {
           @Override
-          public int compare(TimeEvent eg1, TimeEvent eg2) {
+          public int compare(GetPatternStats.TimeEvent eg1, GetPatternStats.TimeEvent eg2) {
               if (eg1.time < eg2.time){
                   return -1;
               }
@@ -278,7 +280,8 @@ public class GetPatternStats {
      * @param note The note to be checked
      * @return True if note is non-diatonic
      */
-    private boolean checkHarmonics(Note note){ 
+    @SuppressWarnings("rawtypes")
+	private boolean checkHarmonics(Note note){ 
         
         List keyScale;
         List<List> majors = new ArrayList<List>();
@@ -368,7 +371,8 @@ public class GetPatternStats {
     /** Process all events in chronological order.
      *   - add pitch, duration, etc. to lists for further statistical processing
      */
-    private void processEvents(){
+    @SuppressWarnings("rawtypes")
+	private void processEvents(){
         sortTimeEvents();
         double lastTime = 0;
         double ioi = 0.0;
@@ -377,7 +381,7 @@ public class GetPatternStats {
         sortTimeEvents();
         
         //Find first note event and get first stats for relative calculations
-        for (TimeEvent t : musicEvents){
+        for (GetPatternStats.TimeEvent t : musicEvents){
             if (t.getEvent() instanceof Note || t.getEvent() instanceof org.jfugue.theory.Chord){
                 Note note = (Note)t.getEvent(); 
                 interval = note.getValue(); //set interval to fist note value
@@ -387,7 +391,7 @@ public class GetPatternStats {
                 break;
             }
         }    
-        for (TimeEvent t : musicEvents){
+        for (GetPatternStats.TimeEvent t : musicEvents){
             Note note;
             //If event is note, collect stats
             if (t.getEvent() instanceof Note || t.getEvent() instanceof org.jfugue.theory.Chord){
@@ -521,12 +525,12 @@ public class GetPatternStats {
     @Override
     public String toString(){
         int[] general = this.getGeneralStats();
-        Stats duration = this.getDurationStats();
-        Stats pitch = this.getPitchStats();
-        Stats ioi = this.getIOIStats();
-        Stats interval = this.getIntervalStats();
-        Stats silence = this.getRestStats();
-        Stats harmonics = this.getHarmonicStats();
+        GetPatternStats.Stats duration = this.getDurationStats();
+        GetPatternStats.Stats pitch = this.getPitchStats();
+        GetPatternStats.Stats ioi = this.getIOIStats();
+        GetPatternStats.Stats interval = this.getIntervalStats();
+        GetPatternStats.Stats silence = this.getRestStats();
+        GetPatternStats.Stats harmonics = this.getHarmonicStats();
         return ("General Stats: \n Notes =  " + general[0] + "\n Silences =  " + general[1] 
             + "\nInterval Stats: n  =  " + interval.getN() + " \n Average  =  " + interval.getAverage() 
             + "\n Range  =  " + interval.getRange() + "\n SD  =  " + interval.getSD() 
@@ -623,23 +627,23 @@ public class GetPatternStats {
 
     @Override
     public void onTrackChanged(byte t) {
-        musicEvents.add(new TimeEvent<Byte>(tickPos, t));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte>(tickPos, t));
     }
 
     @Override
     public void onLayerChanged(byte layerNum) {
-        musicEvents.add(new TimeEvent<Byte>(tickPos, layerNum));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte>(tickPos, layerNum));
         tickPos = 0;
     }
 
     @Override
     public void onInstrumentParsed(byte i) {
-       musicEvents.add(new TimeEvent<Byte>(tickPos, i));
+       musicEvents.add(new GetPatternStats.TimeEvent<Byte>(tickPos, i));
     }
 
     @Override
     public void onTempoChanged(int tBPM) {  
-        musicEvents.add(new TimeEvent<Integer>(tickPos, tBPM));
+        musicEvents.add(new GetPatternStats.TimeEvent<Integer>(tickPos, tBPM));     
     }
 
     @Override
@@ -652,17 +656,17 @@ public class GetPatternStats {
         else{
             k = new Key(new Note(keyB).toString() + min);
         }
-        musicEvents.add(new TimeEvent<Key>(tickPos, k));
+        musicEvents.add(new GetPatternStats.TimeEvent<Key>(tickPos, k));
     }
 
     @Override
     public void onTimeSignatureParsed(byte bDuration, byte bNumber) {
-        musicEvents.add(new TimeEvent<Byte[]>(tickPos, new Byte[]{bDuration,bNumber}));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte[]>(tickPos, new Byte[]{bDuration,bNumber}));
     }
 
     @Override
     public void onBarLineParsed(long m) {     
-        musicEvents.add(new TimeEvent<Long>(tickPos, m));
+        musicEvents.add(new GetPatternStats.TimeEvent<Long>(tickPos, m));
         ++measures;
     }
 
@@ -683,17 +687,17 @@ public class GetPatternStats {
 
     @Override
     public void onPitchWheelParsed(byte b, byte b1) {
-        musicEvents.add(new TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));
     }
 
     @Override
     public void onChannelPressureParsed(byte b) {
-       musicEvents.add(new TimeEvent<Byte>(tickPos, b));
+       musicEvents.add(new GetPatternStats.TimeEvent<Byte>(tickPos, b)); 
     }
 
     @Override
     public void onPolyphonicPressureParsed(byte b, byte b1) {
-        musicEvents.add(new TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));
     }
 
     @Override
@@ -716,34 +720,39 @@ public class GetPatternStats {
 
     @Override
     public void onControllerEventParsed(byte b, byte b1) {
-        musicEvents.add(new TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));
+        musicEvents.add(new GetPatternStats.TimeEvent<Byte[]>(tickPos, new Byte[]{b,b1}));      
     }
 
     @Override
     public void onLyricParsed(String lyric) {
-        musicEvents.add(new TimeEvent<String>(tickPos, lyric));
+        musicEvents.add(new GetPatternStats.TimeEvent<String>(tickPos, lyric));
     }
 
     @Override
     public void onMarkerParsed(String string) {
-        musicEvents.add(new TimeEvent<String>(tickPos, string));
+        musicEvents.add(new GetPatternStats.TimeEvent<String>(tickPos, string));  
     }
 
     @Override
     public void onFunctionParsed(String string, Object o) {
-        musicEvents.add(new TimeEvent<Object>(tickPos, o));
+        musicEvents.add(new GetPatternStats.TimeEvent<Object>(tickPos, o));      
     }
-    
+
+    @Override
+    public void onNotePressed(Note note) { }
+
+    @Override
+    public void onNoteReleased(Note note) { }
+
     @Override
     public void onNoteParsed(Note note) {
-       musicEvents.add(new TimeEvent<Note>(tickPos, note));
+       musicEvents.add(new GetPatternStats.TimeEvent<Note>(tickPos, note));
        tickPos = tickPos + convertDecimalToTicks(note.getDuration()); //advance tick position
-
     }
     
     @Override
     public void onChordParsed(org.jfugue.theory.Chord chord) {    
-        musicEvents.add(new TimeEvent<org.jfugue.theory.Chord>(tickPos, chord));
+        musicEvents.add(new GetPatternStats.TimeEvent<org.jfugue.theory.Chord>(tickPos, chord));  
         tickPos = tickPos + convertDecimalToTicks(chord.getRoot().getDuration());
     }
     }  

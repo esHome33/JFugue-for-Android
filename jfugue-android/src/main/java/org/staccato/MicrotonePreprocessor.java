@@ -40,9 +40,9 @@ public class MicrotonePreprocessor implements Preprocessor
 		return instance;
 	}
 
-	private static Pattern microtonePattern = Pattern.compile("(^|\\s)[Mm]\\S+");
-	private static Pattern frequencyPattern = Pattern.compile("[0-9.]+");
-	private static Pattern qualifierPattern = Pattern.compile("[WHQISTXOADwhqistxoad/]+[0-9.]*\\S*");
+	private static java.util.regex.Pattern microtonePattern = Pattern.compile("(^|\\s)[Mm]\\S+"); 
+	private static java.util.regex.Pattern frequencyPattern = Pattern.compile("[0-9.]+");
+	private static java.util.regex.Pattern qualifierPattern = Pattern.compile("[WHQISTXOADwhqistxoad/]+[0-9.]*\\S*");
 	
 	@Override
 	public String preprocess(String s, StaccatoParserContext context) {
@@ -87,23 +87,37 @@ public class MicrotonePreprocessor implements Preprocessor
      */
     public static String convertFrequencyToStaccato(double frequency, String qualifier)
     {
-        double totalCents = 1200 * Math.log(frequency / 16.3515978312876) / Math.log(2);
-        double octave = Math.round(totalCents / 1200.0);
+        double totalCents = 1200.0 * Math.log(frequency / 16.3515978312876) / Math.log(2);
+        int octave = (int)(totalCents / 1200.0);
         double semitoneCents = totalCents - (octave * 1200.0);
-        double semitone = Math.round(semitoneCents / 100.0);
+        int semitone = (int)(semitoneCents / 100.0);
         double microtonalAdjustment = semitoneCents - (semitone * 100.0);
-        double pitches = 8192.0 + (microtonalAdjustment * 8192.0 / 100.0);
+        int pitches = (int)(8192 + (microtonalAdjustment * 8192.0 / 100.0));
+        
+        // If we're close enough to the next note, just use the next note. 
+        if (pitches >= 16380) {
+        	pitches = 0;
+        	semitone += 1;
+        	if (semitone == 12) {
+        		octave += 1;
+        		semitone = 0;
+        	}
+        }
 
-        double note = ((octave+1)*12)+semitone; // This gives a MIDI value, 0 - 128
+        int note = (octave*12)+semitone; // This gives a MIDI value, 0 - 128
         if (note > 127) note = 127;
 
         StringBuilder buddy = new StringBuilder();
-        buddy.append(":PitchWheel(");
-        buddy.append((int)pitches);
-        buddy.append(") ");
+        if (pitches > 0) {
+	        buddy.append(":PitchWheel(");
+	        buddy.append((int)pitches);
+	        buddy.append(") ");
+        }
         buddy.append((int)note);
         buddy.append(qualifier);
-        buddy.append(" :PitchWheel(8192)"); // Reset the pitch wheel.  8192 = original pitch wheel position
+        if (pitches > 0) {
+            buddy.append(" :PitchWheel(8192)"); // Reset the pitch wheel.  8192 = original pitch wheel position
+        }
         return buddy.toString();
     }
 }

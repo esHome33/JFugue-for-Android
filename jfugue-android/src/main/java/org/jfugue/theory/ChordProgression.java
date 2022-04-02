@@ -19,11 +19,11 @@
 
 package org.jfugue.theory;
 
+import org.jfugue.pattern.ReplacementFormatUtil;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.pattern.PatternProducer;
 import org.jfugue.provider.KeyProviderFactory;
 import org.jfugue.provider.NoteProviderFactory;
-import org.staccato.StaccatoUtil;
 
 public class ChordProgression implements PatternProducer {
     private String[] progressionElements;
@@ -37,7 +37,9 @@ public class ChordProgression implements PatternProducer {
     
     /** 
      * Creates a chord progression given a Progression String, like "I vi ii V" - case is important! 
-     * Chords can be separated with spaces ("I vi ii V") or dashes ("I-vi-ii-V"). */
+     * Chords can be separated with spaces ("I vi ii V") or dashes ("I-vi-ii-V").
+     *  
+     **/
 	public ChordProgression(String progression) {
 		createProgression(progression.split("[- ]")); // Split on either spaces or dashes // TODO Make ChordProgression parse on [- +]
 	}
@@ -86,14 +88,14 @@ public class ChordProgression implements PatternProducer {
 	    }
 
 	    if (allSequence != null) {
-	    	pattern = replaceDollarsWithCandidates(allSequence, getChords(), new Pattern(getChords()));
+	    	pattern = ReplacementFormatUtil.replaceDollarsWithCandidates(allSequence, getChords(), new Pattern(getChords()));
 	    }
 	    
 	    if (eachSequence != null) {
 	    	Pattern p2 = new Pattern();
 	    	for (String chordString : pattern.toString().split(" ")) { // TODO Should be " +"
 	    		Chord chord = new Chord(chordString);
-	    		p2.add(replaceDollarsWithCandidates(eachSequence, chord.getNotes(), chord));
+	    		p2.add(ReplacementFormatUtil.replaceDollarsWithCandidates(eachSequence, chord.getNotes(), chord));
 	    	}
 	    	pattern = p2;
 	    }
@@ -140,8 +142,12 @@ public class ChordProgression implements PatternProducer {
                     intervals = Chord.MINOR_SEVENTH_SIXTH_INTERVALS;
 	            }
 	        }
+	        
+	        // Check for inversions
+	        int inversions = countInversions(progressionElement);
 
 	        chords[counter] = new Chord(rootNote, intervals);
+	        if (inversions > 0) { chords[counter].setInversion(inversions); }
 	        counter++;
 	    }
 	    return chords;
@@ -152,26 +158,23 @@ public class ChordProgression implements PatternProducer {
 	 * VIII would be the octave and equal I!
 	 */
 	private int romanNumeralToIndex(String romanNumeral) {
-	    String s = romanNumeral.toLowerCase();
-	    
-	    // Notice if we are dealing with a diminished interval
-	    if (s.endsWith("o") || s.endsWith("d") || s.endsWith("7")) { 
-	        s = s.substring(0, s.length()-1);
-	    }
-	    
-	    if (s.endsWith("7%6")) {
-	    	s = s.substring(0, s.length()-3);
-	    }
-	    
-	    // Convert Roman numerals to numeric index
-	    if (s.equals("i")) { return 0; } 
-	    else if (s.equals("ii")) { return 1; }
-	    else if (s.equals("iii")) { return 2; } 
-        else if (s.equals("iv")) { return 3; }
-        else if (s.equals("v")) { return 4; } 
-        else if (s.equals("vi")) { return 5; }
-        else if (s.equals("vii")) { return 6; } 
-	    return 0;
+		String s = romanNumeral.toLowerCase();
+		if (s.startsWith("vii")) { return 6; } 
+		else if (s.startsWith("vi")) { return 5; }
+		else if (s.startsWith("v")) { return 4; }
+		else if (s.startsWith("iv")) { return 3; }
+		else if (s.startsWith("iii")) { return 2; }
+		else if (s.startsWith("ii")) { return 1; }
+		else if (s.startsWith("i")) { return 0; }
+		else { return 0; }
+	}
+	
+	private int countInversions(String s) {
+		int counter = 0;
+		for (int i=0; i < s.length(); i++) {
+			if (s.charAt(i) == '^') { counter++; }
+		}
+		return counter;
 	}
 	
 	public String toString() {
@@ -180,49 +183,6 @@ public class ChordProgression implements PatternProducer {
 	
 	public String[] toStringArray() {
 		return getPattern().toString().split(" ");
-	}
-	
-	//
-	//
-	// Cool ways of playing ChordProgressions!
-	//
-	//
-
-	private Pattern replaceDollarsWithCandidates(String sequence, PatternProducer[] candidates, PatternProducer underscoreReplacement) {
-		StringBuilder buddy = new StringBuilder();
-
-		int posPrevDollar = -1;
-		int posNextDollar = 0;
-		
-		while (posNextDollar < sequence.length()) {
-			posNextDollar = StaccatoUtil.findNextOrEnd(sequence, '$', posPrevDollar);
-			if (posPrevDollar+1 < sequence.length()) {
-				buddy.append(sequence.substring(posPrevDollar+1, posNextDollar));
-			}
-			if (posNextDollar != sequence.length()) {
-				String selectionString = sequence.substring(posNextDollar+1, posNextDollar+2);
-				if (selectionString.equals("_")) {
-					// If the underscore replacement has tokens, then the stuff after $_ needs to be applied to each token in the underscore replacement!
-					String replacementTokens[] = underscoreReplacement.getPattern().toString().split(" ");
-					int nextSpaceInSequence = StaccatoUtil.findNextOrEnd(sequence, ' ', posNextDollar);
-					for (String token : replacementTokens) {
-						buddy.append(token);
-						buddy.append(sequence.substring(posNextDollar+2, nextSpaceInSequence));
-						buddy.append(" ");
-					}
-					posNextDollar = nextSpaceInSequence-1;
-				} else {
-					int selection = Integer.parseInt(sequence.substring(posNextDollar+1, posNextDollar+2));
-		    		if (selection > candidates.length) {
-		    			throw new IllegalArgumentException("The selector $"+selection+" is greater than the number of items to choose from, which has "+candidates.length+" items.");
-		    		}
-		    		buddy.append(candidates[selection].getPattern());
-				}
-			}
-			posPrevDollar = posNextDollar+1;
-		}		
-		
-		return new Pattern(buddy.toString().trim());
 	}
 	
 	/**

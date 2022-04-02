@@ -108,6 +108,25 @@ public interface ParserListener
     
     public void onFunctionParsed(String id, Object message);
     
+    /** 
+     * Used to indicate when a note is pressed. Used in realtime cases when 
+     * notes are actually being pressed and released. Parsers that do not
+     * operate in realtime are not expected to report onNotePressed.
+     * 
+     * Expect the Note event to contain only the note number and note-on velocity.
+     */
+    public void onNotePressed(Note note);
+    
+    /** 
+     * Used to indicate when a note is released. Used in realtime cases when 
+     * notes are actually being pressed and released. Parsers that do not
+     * operate in realtime are not expected to report onNoteReleased.
+     * 
+     * Expect the Note event to contain only the note number and note-off velocity.
+     * Duration may not be set on the Note from onNoteReleased.
+     */
+    public void onNoteReleased(Note note);
+    
     /**
      * We may have actually parsed a musical note!
      * In previous versions of JFugue, ParserListener had separate listeners for parallel notes and sequential notes

@@ -25,6 +25,10 @@ public class KeyProviderFactory
 {
     private static KeyProvider keyProvider;
     
+    /**
+     * Fournit un SignatureSubparser qui est un KeyProvider
+     * @return a KeyProvider
+     */
     public static KeyProvider getKeyProvider() {
         if (keyProvider == null) {
             keyProvider = SignatureSubparser.getInstance();

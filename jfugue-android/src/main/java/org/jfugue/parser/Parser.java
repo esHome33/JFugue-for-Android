@@ -37,11 +37,15 @@ public class Parser {
 	}
 	
 	public void removeParserListener(ParserListener listener) {
-	    parserListeners.add(listener);
+	    parserListeners.remove(listener);
 	}
 	
 	public List<ParserListener> getParserListeners() {
 	    return parserListeners;
+	}
+	
+	public void clearParserListeners() {
+	    this.parserListeners.clear();
 	}
 	
 	//
@@ -187,6 +191,20 @@ public class Parser {
 	        listener.onFunctionParsed(id, message);
 	    }
 	}
+
+    public void fireNotePressed(Note note) { 
+        List<ParserListener> listeners = getParserListeners();
+        for (ParserListener listener : listeners) {
+            listener.onNotePressed(note);
+        }
+    }   
+
+    public void fireNoteReleased(Note note) { 
+        List<ParserListener> listeners = getParserListeners();
+        for (ParserListener listener : listeners) {
+            listener.onNoteReleased(note);
+        }
+    }   
 
 	public void fireNoteParsed(Note note) { 
 	    List<ParserListener> listeners = getParserListeners();

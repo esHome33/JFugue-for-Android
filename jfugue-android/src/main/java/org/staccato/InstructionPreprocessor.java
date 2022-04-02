@@ -40,7 +40,7 @@ public class InstructionPreprocessor implements Preprocessor
 		return instance;
 	}
 
-    private static Pattern keyPattern = Pattern.compile("\\{\\p{ASCII}*?\\}");
+    private static java.util.regex.Pattern keyPattern = Pattern.compile("\\{\\p{ASCII}*?\\}");
 
     private Map<String, Instruction> instructions;
 	

@@ -20,6 +20,7 @@
 package org.staccato;
 
 import org.jfugue.midi.MidiDictionary;
+import org.jfugue.pattern.Token.TokenType;
 
 /**
  * Parses both Instrument and Layer tokens. Each has values that are parsed as bytes. 
@@ -44,6 +45,15 @@ public class TempoSubparser implements Subparser
 		return (music.charAt(0) == TEMPO);
 	}
 
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (tokenString.charAt(0) == TEMPO) {
+            return TokenType.TEMPO;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }
+    
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (matches(music)) {

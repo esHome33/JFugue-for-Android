@@ -65,7 +65,7 @@ public class MidiParserListener implements ParserListener
 
     @Override
     public void onLayerChanged(byte layer) {
-        this.eventManager.setCurrentLayer(layer);
+        this.eventManager.setCurrentLayerNumber(layer);
     }
 
     @Override
@@ -145,6 +145,12 @@ public class MidiParserListener implements ParserListener
     @Override
     public void onFunctionParsed(String id, Object message) { }
 
+    @Override
+    public void onNotePressed(Note note) { }
+    
+    @Override
+    public void onNoteReleased(Note note) { }
+    
     @Override
     public void onNoteParsed(Note note) {
         this.eventManager.addNote(note);

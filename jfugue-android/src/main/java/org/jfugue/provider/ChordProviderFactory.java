@@ -21,10 +21,17 @@ package org.jfugue.provider;
 
 import org.staccato.NoteSubparser;
 
+
+/**
+ * A static class that stores a ChordProvider (a Staccato NoteSubparser)
+ */
 public class ChordProviderFactory 
 {
     private static ChordProvider chordProvider;
-    
+    /**
+     * gets the ChordProvider (a Staccato NoteSubparser)
+     * @return the ChordProvider (a Staccato NoteSubparser)
+     */
     public static ChordProvider getChordProvider() {
         if (chordProvider == null) {
             chordProvider = NoteSubparser.getInstance();

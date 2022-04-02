@@ -19,18 +19,19 @@
 
 package org.jfugue.realtime;
 
-import org.jfugue.midi.MidiDefaults;
-import org.jfugue.midi.TrackTimeManager;
-import org.jfugue.parser.ParserListener;
-import org.jfugue.theory.Chord;
-import org.jfugue.theory.Note;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jp.kshoji.javax.sound.midi.MidiUnavailableException;
+
+import org.jfugue.midi.MidiDefaults;
+import org.jfugue.midi.TrackTimeManager;
+import org.jfugue.parser.ParserListener;
+import org.jfugue.theory.Chord;
+import org.jfugue.theory.Note;
+
 
 /**
  * The callbacks in RealtimeMidiParserListener are only called when a user
@@ -77,7 +78,7 @@ public class RealtimeMidiParserListener extends TrackTimeManager implements Pars
     				setAllTrackBeatTime(getDeltaClockTimeInMillis());
     				
     				long deltaMillis = getDeltaClockTimeInMillis() - lastMillis;
-    				if (deltaMillis > 0) {
+    				if (deltaMillis > 0L) {
 	    				for (long time = lastMillis; time < lastMillis+deltaMillis; time++) {
 	    					setActiveTimeInMillis(time);
 	    					executeScheduledCommands(time);
@@ -198,7 +199,7 @@ public class RealtimeMidiParserListener extends TrackTimeManager implements Pars
 
     @Override 
     public void onLayerChanged(byte layer) { 
-        setCurrentLayer(layer);
+        setCurrentLayerNumber(layer);
     }
 
     @Override 
@@ -281,6 +282,12 @@ public class RealtimeMidiParserListener extends TrackTimeManager implements Pars
     @Override 
     public void onFunctionParsed(String id, Object message) { }
 
+    @Override
+    public void onNotePressed(Note note) { }
+    
+    @Override
+    public void onNoteReleased(Note note) { }
+    
     @Override  
     public void onNoteParsed(final Note note) {
     	if (note.getDuration() == 0.0) {

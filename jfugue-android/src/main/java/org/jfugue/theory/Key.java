@@ -21,16 +21,28 @@ package org.jfugue.theory;
 
 import org.jfugue.provider.KeyProviderFactory;
 
+/**
+ * A Key contains a root {@link Note} and a {@link Scale} (Intervals and a major/minor qualifier).
+ */
 public class Key 
 {
 	private Note root;
 	private Scale scale;
-	
+
+	/**
+	 * Creates a key from a root Note and a Scale
+	 * @param root the root Note
+	 * @param scale the scale
+	 */
 	public Key(Note root, Scale scale) {
 		this.root = root;
 		this.scale = scale;
 	}
-	    
+	
+	/**
+	 * Creates a new key from a Chord. Set the root and the scale from the given chord
+	 * @param chord the chord form which the root and the scale is set.
+	 */
 	public Key(Chord chord) {
 		this.root = chord.getRoot();
 		if (chord.isMajor()) {
@@ -40,7 +52,12 @@ public class Key
 		}
 	}
 	
-	/** This method requires a key signature represented by a chord name, like Cmaj, or 'K' followed by sharps or flats, like "K####" for E Major */
+	/** 
+	 * Creates a new key from the given key signature 
+	 * @param keySignature a string that gives a chord name (like "Cmaj") 
+	 * 		or 'K' followed by sharps or flats (like "K####" for E Major)
+	 * 
+	 */
 	public Key(String keySignature) {
         this(KeyProviderFactory.getKeyProvider().createKey(keySignature));
 	}
@@ -50,6 +67,10 @@ public class Key
 	    this.scale = key.scale;
 	}
 	
+	/**
+	 * 
+	 * @return returns the root note and the name of the scale (min, maj or the name)
+	 */
     public String getKeySignature() {
         return this.root.toString() + this.scale.toString(); 
     }
@@ -62,5 +83,8 @@ public class Key
     	return this.scale;
     }
     
+    /**
+     * Default key is C4maj
+     */
     public static final Key DEFAULT_KEY = new Key("C4maj");
 }

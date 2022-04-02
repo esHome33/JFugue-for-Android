@@ -19,11 +19,14 @@
 
 package org.jfugue.player;
 
+import javax.sound.midi.Sequence;
+
 public interface ManagedPlayerListener 
 {
-	public void onStarted();
+	public void onStarted(Sequence sequence);
 	public void onFinished();
 	public void onPaused();
 	public void onResumed();
 	public void onSeek(long tick);
+	public void onReset();
 }

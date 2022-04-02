@@ -19,6 +19,10 @@
 
 package org.jfugue.theory;
 
+/**
+ * A time signature is simply a couple of integers :  beatsPerMeasure and durationForBeat.
+ *
+ */
 public class TimeSignature 
 {
 	private int beatsPerMeasure;
@@ -47,5 +51,8 @@ public class TimeSignature
 		return this.durationForBeat;
 	}
 	
+	/**
+	 * default time signature is 4/4
+	 */
 	public static final TimeSignature DEFAULT_TIMESIG = new TimeSignature(4, 4);
 }

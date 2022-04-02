@@ -19,14 +19,15 @@
 
 package org.jfugue.player;
 
+import jp.kshoji.javax.sound.midi.InvalidMidiDataException;
+import jp.kshoji.javax.sound.midi.MidiUnavailableException;
+import jp.kshoji.javax.sound.midi.Sequence;
+
 import org.jfugue.midi.MidiParserListener;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.pattern.PatternProducer;
 import org.staccato.StaccatoParser;
 
-import jp.kshoji.javax.sound.midi.InvalidMidiDataException;
-import jp.kshoji.javax.sound.midi.MidiUnavailableException;
-import jp.kshoji.javax.sound.midi.Sequence;
 
 /**
  * This is a player that is optimized for defining and playing music in a program. 
@@ -159,7 +160,7 @@ public class Player
 
 	/**
 	 * Returns the MidiParserListener used by this Player. 
-	 * @see org.jfugue.midi.MidiParserListener
+	 * @see MidiParserListener
 	 */
 	public MidiParserListener getMidiParserListener() { 
 		return this.midiParserListener;

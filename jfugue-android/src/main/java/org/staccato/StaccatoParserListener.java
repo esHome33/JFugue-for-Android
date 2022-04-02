@@ -2,7 +2,7 @@
  * JFugue, an Application Programming Interface (API) for Music Programming
  * http://www.jfugue.org
  *
- * Copyright (C) 2003-2014 David Koelle
+ * Copyright (C) 2003-2016 David Koelle
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 
 package org.staccato;
 
-import org.jfugue.midi.MidiDefaults;
 import org.jfugue.parser.ParserListener;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.pattern.PatternProducer;
@@ -136,6 +135,12 @@ public class StaccatoParserListener implements ParserListener, PatternProducer {
     public void onFunctionParsed(String id, Object message) {
     	pattern.add(StaccatoUtil.createFunctionElement(id, message));
     }
+
+    @Override
+    public void onNotePressed(Note note) { }
+
+    @Override
+    public void onNoteReleased(Note note) { }
 
     @Override
     public void onNoteParsed(Note note) {

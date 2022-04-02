@@ -22,49 +22,49 @@ package org.jfugue.pattern;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jfugue.rhythm.Rhythm;
+
 public class TrackTable implements PatternProducer
 {
     private int length;
-    private List<List<Pattern>> tracks; 
-    private PatternValidator validator;
+    private double cellDuration;
+    private List<List<PatternProducer>> tracks; 
+    private List<PatternProducer> trackSettings;
     
-    public TrackTable(int length) {
+    public TrackTable(int length, double cellDuration) {
         this.length = length;
-        tracks = new ArrayList<List<Pattern>>(TrackTable.NUM_TRACKS);
+        this.cellDuration = cellDuration;
+        tracks = new ArrayList<List<PatternProducer>>(TrackTable.NUM_TRACKS);
+        trackSettings = new ArrayList<PatternProducer>(TrackTable.NUM_TRACKS);
+        
+        for (int i=0; i < TrackTable.NUM_TRACKS; i++) {
+            trackSettings.add(new Pattern(""));
+            List<PatternProducer> list = new ArrayList<PatternProducer>(length);
+            for (int u=0; u < length; u++) {
+                list.add(new Pattern("R/"+cellDuration));
+            }
+            tracks.add(list);
+        }
     }
     
-    public List<Pattern> getTrack(int track) {
+    public List<PatternProducer> getTrack(int track) {
         return tracks.get(track);
     }
     
-    public TrackTable setPatternValidator(PatternValidator pv) {
-        this.validator = pv;
-        return this;
-    }
-    
-    public PatternValidator getPatternValidator() {
-    	return this.validator;
-    }
-    
     public TrackTable put(int track, int position, PatternProducer patternProducer) {
-        if (validator != null) {
-            if (!validator.isValid(patternProducer)) {
-                throw new RuntimeException(validator.getErrorMessage(patternProducer));
-            }
-        }
-        List<Pattern> trackList = this.tracks.get(track);
+        List<PatternProducer> trackList = this.tracks.get(track);
         if (trackList == null) {
-            trackList = new ArrayList<Pattern>(getLength());
+            trackList = new ArrayList<PatternProducer>(getLength());
             this.tracks.add(track, trackList);
         }
         trackList.add(position, patternProducer.getPattern());
         return this;
     }
 
-    public TrackTable put(int track, int position, PatternProducer... patternProducers) {
+    public TrackTable put(int track, int start, PatternProducer... patternProducers) {
         int counter = 0;
         for (PatternProducer producer : patternProducers) {
-            this.put(track, position+counter, producer);
+            this.put(track, start+counter, producer);
             counter++;
         }
         return this;
@@ -78,9 +78,9 @@ public class TrackTable implements PatternProducer
         return this;
     }
 
-    /** Puts the given pattern in the track table at every 'nth' position, starting with position 'first' */
-    public TrackTable putAtIntervals(int track, int nth, int first, PatternProducer patternProducer) {
-        for (int position = first; position < this.length; position += nth) {
+    /** Puts the given pattern in the track table at every 'nth' position, starting with position 'first' and ending with 'end' */
+    public TrackTable putAtIntervals(int track, int first, int nth, int end, PatternProducer patternProducer) {
+        for (int position = first; position < Math.min(this.length, end); position += nth) {
             this.put(track, position, patternProducer);
         }
         return this;
@@ -111,30 +111,95 @@ public class TrackTable implements PatternProducer
      * @param patternProducer
      * @return
      */
-    public TrackTable put(int track, String periodMeansNoOtherMeansYes, PatternProducer patternProducer) {
-    	for (int i=0; i < periodMeansNoOtherMeansYes.length(); i++) {
-    		if (periodMeansNoOtherMeansYes.charAt(i) != '.') {
+    public TrackTable put(int track, String periodMeansNo_DashMeansExtend_OtherMeansYes, PatternProducer patternProducer) {
+    	for (int i=0; i < periodMeansNo_DashMeansExtend_OtherMeansYes.length(); i++) {
+    		if (periodMeansNo_DashMeansExtend_OtherMeansYes.charAt(i) == '.') {
+    		    // No op
+    		}
+    		else if (periodMeansNo_DashMeansExtend_OtherMeansYes.charAt(i) == '-') {
+    		    put(track, i, new Pattern(""));
+    		} else {
     			put(track, i, patternProducer);
     		}
     	}
     	return this;
     }
     
+    public TrackTable put(Rhythm rhythm) {
+        for (int i=0; i < rhythm.getLength(); i++) {
+            put(9, i, rhythm.getPatternAt(i));
+        }
+        return this;
+    }
+    
+    public PatternProducer get(int track, int position) {
+        return tracks.get(track).get(position);
+    }
+    
+    public TrackTable clear(int track, int position) {
+        put(track, position, new Pattern(""));
+        return this;
+    }
+    
+    public TrackTable reset(int track, int position) {
+        put(track, position, new Pattern("R/"+cellDuration));
+        return this;
+    }
+    
     public int getLength() {
         return this.length;
+    }
+    
+    public TrackTable setTrackSettings(int track, PatternProducer p) {
+        this.trackSettings.add(track, p);
+        return this;
+    }
+    
+    public TrackTable setTrackSettings(int track, String s) {
+        this.trackSettings.add(track, new Pattern(s));
+        return this;
+    }
+    
+    public PatternProducer getTrackSettings(int track) {
+        return this.trackSettings.get(track);
+    }
+    
+    public Pattern getPatternAt(int column) {
+        Pattern columnPattern = new Pattern();
+        for (List<PatternProducer> track : tracks) {
+            PatternProducer p = track.get(column);
+            columnPattern.add(new Pattern(p).setVoice(tracks.indexOf(track)));
+        }
+        return columnPattern;
     }
     
     @Override
     public Pattern getPattern() {
         Pattern pattern = new Pattern();
-        for (List<Pattern> track : tracks) {
-            for (Pattern p : track) {
-                pattern.addTrack(tracks.indexOf(track), p);
+        int trackCounter = 0;
+        
+        // First, add the track settings
+        for (PatternProducer trackSetting : trackSettings) {
+            if (!trackSetting.toString().equals("")) {
+                pattern.add(new Pattern(trackSetting).setVoice(trackCounter));
+            }
+            trackCounter++;
+        }
+        
+        // Next, for each track, add it to the pattern
+        for (List<PatternProducer> track : tracks) {
+            for (PatternProducer p : track) {
+                pattern.add(new Pattern(p).setVoice(tracks.indexOf(track)));
             }
         }
         return pattern;
     }
 
+    @Override
+    public String toString() {
+        return getPattern().toString();
+    }
+    
     public static final int NUM_TRACKS = 16;
     public static final int RHYTHM_TRACK = 9;
 }

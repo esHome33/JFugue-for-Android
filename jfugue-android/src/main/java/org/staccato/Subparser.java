@@ -19,6 +19,8 @@
 
 package org.staccato;
 
+import org.jfugue.pattern.Token.TokenType;
+
 /**
  * This makes it easy to extend the parser. 
  *  
@@ -33,6 +35,13 @@ public interface Subparser {
      * @return true if this subparser will accept the music string, false otherwise
      */
     public boolean matches(String music);
+    
+    /**
+     * Asks the subparser to provide a TokenType for the given token.
+     * 
+     * @param tokenString The Staccato token to map to a type
+     */
+    public TokenType getTokenType(String tokenString);
     
     /**
      * Parses the given music string.

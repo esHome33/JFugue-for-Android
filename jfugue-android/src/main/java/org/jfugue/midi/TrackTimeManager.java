@@ -39,60 +39,60 @@ import org.jfugue.realtime.RealtimeMidiParserListener;
 public class TrackTimeManager
 {
     private double[][] beatTime;
-    private byte currentTrack;
-    private byte lastCreatedTrack;
-    private byte[] currentLayer;
+    private byte currentTrackNumber;
+    private byte lastCreatedTrackNumber;
+    private byte[] currentLayerNumber;
     private double initialNoteBeatTimeForHarmonicNotes;  
     private Map<String, Double> bookmarkedTrackTimeMap;
 
     public TrackTimeManager() { 
     	beatTime = new double[MidiDefaults.TRACKS][MidiDefaults.LAYERS];
-    	currentTrack = 0;
-    	lastCreatedTrack = 0;
-    	currentLayer = new byte[MidiDefaults.TRACKS];
+    	currentTrackNumber = 0;
+    	lastCreatedTrackNumber = 0;
+    	currentLayerNumber = new byte[MidiDefaults.TRACKS];
         initialNoteBeatTimeForHarmonicNotes = 0.0d;  
     	bookmarkedTrackTimeMap = new HashMap<String, Double>();
     }
     
     /**
      * Sets the current track, or channel, to which new events will be added.
-     * @param track the track to select
+     * @param trackNumber the track to select
      */
-    public void setCurrentTrack(byte track) {
-        if (track > this.lastCreatedTrack) {
-            for (int i = this.lastCreatedTrack+1; i < track; i++) {
+    public void setCurrentTrack(byte trackNumber) {
+        if (trackNumber > this.lastCreatedTrackNumber) {
+            for (int i = this.lastCreatedTrackNumber+1; i < trackNumber; i++) {
                 createTrack((byte)i);
             }
-            this.lastCreatedTrack = track;
+            this.lastCreatedTrackNumber = trackNumber;
         }
-        this.currentTrack = track;
+        this.currentTrackNumber = trackNumber;
     }
     
-    public byte getCurrentTrack() {
-    	return this.currentTrack;
+    public byte getCurrentTrackNumber() {
+    	return this.currentTrackNumber;
     }
     
-    protected byte getLastCreatedTrack() { 
-    	return this.lastCreatedTrack;
+    protected byte getLastCreatedTrackNumber() { 
+    	return this.lastCreatedTrackNumber;
     }
 
     protected void createTrack(byte track) {
         for (byte layer = 0; layer < MidiDefaults.LAYERS; layer++) {
             beatTime[track][layer] = 0;
         }
-        currentLayer[track] = 0;
+        currentLayerNumber[track] = 0;
     }        
 
     /**
      * Sets the current layer within the track to which new events will be added.
-     * @param layer the layer to select
+     * @param layerNumber the layer to select
      */
-    public void setCurrentLayer(byte layer) {
-        currentLayer[currentTrack] = layer;
+    public void setCurrentLayerNumber(byte layerNumber) {
+        currentLayerNumber[currentTrackNumber] = layerNumber;
     }
 
-    protected byte getCurrentLayer() { 
-    	return this.currentLayer[getCurrentTrack()];
+    protected byte getCurrentLayerNumber() { 
+    	return this.currentLayerNumber[getCurrentTrackNumber()];
     }
     
     public void setInitialNoteBeatTimeForHarmonicNotes(double initialNoteBeatTimeForHarmonicNotes) {
@@ -109,7 +109,7 @@ public class TrackTimeManager
      * @param duration the duration to increase the track timer
      */
     public void advanceTrackBeatTime(double advanceTime) {
-        beatTime[currentTrack][currentLayer[currentTrack]] += advanceTime;
+        beatTime[currentTrackNumber][currentLayerNumber[currentTrackNumber]] += advanceTime;
     }
 
     /**
@@ -118,7 +118,7 @@ public class TrackTimeManager
      * @param newTickTime the time at which to set the track timer
      */
     public void setTrackBeatTime(double newTime) {
-        beatTime[currentTrack][currentLayer[currentTrack]] = newTime;
+        beatTime[currentTrackNumber][currentLayerNumber[currentTrackNumber]] = newTime;
     }
 
     /**
@@ -141,7 +141,7 @@ public class TrackTimeManager
      * @return the timer value for the current track, specified in Pulses Per Quarter (PPQ)
      */
     public double getTrackBeatTime() {
-        return beatTime[currentTrack][currentLayer[currentTrack]];
+        return beatTime[getCurrentTrackNumber()][getCurrentLayerNumber()];
     }
 
     public void addTrackTickTimeBookmark(String timeBookmarkID) {
@@ -154,13 +154,13 @@ public class TrackTimeManager
 
     /**
      * Returns the latest track time across all layers in the given track
-     * @param track
+     * @param trackNumber
      */
-    public double getLatestTrackBeatTime(byte track) {
+    public double getLatestTrackBeatTime(byte trackNumber) {
     	double latestTime = 0.0D;
     	for (byte i=0; i < MidiDefaults.LAYERS; i++) {
-    		if (beatTime[track][i] > latestTime) {
-    			latestTime = beatTime[track][i];
+    		if (beatTime[trackNumber][i] > latestTime) {
+    			latestTime = beatTime[trackNumber][i];
     		}
     	}
     	return latestTime;

@@ -26,12 +26,28 @@ import org.jfugue.theory.Key;
  */
 public interface KeyProvider
 {
-	/** Given a key signature, like "Cmaj" or "Kbbbb", return the corresponding Key */
+	
+	/**
+	 * Given a key signature, like "Cmaj" or "Kbbbb", return the corresponding Key
+	 * @param keySignature a note letter (A to G) or K (for major key) / k (for minor key)followed by b's or #'s   
+	 * @return corresponding Key
+	 */
     public Key createKey(String keySignature);
     
-    /** Creates a key name, like Cmaj, given the root note's position in an octave (e.g., 0 for C) and a major or minor indicator - @see Scale MAJOR_SCALE_INDICATOR and MINOR_SCALE_INDICATOR */
+    /** 
+     * Creates a key name, like Cmaj, given the root note's position in an octave (e.g., 0 for C) and a major or minor indicator
+     *  - {@link Scale.MAJOR_SCALE_INDICATOR} and MINOR_SCALE_INDICATOR
+     *  @param notePositionInOctave the position of the note in an octave (0 to 11)
+     *  @param scale Scale.MAJOR_INDICATOR or Scale.MINOR_INDICATOR
+     *  @return a string containing a key name like C#maj 
+     */
     public String createKeyString(byte notePositionInOctave, byte scale);
     
-    /** Converts the given Key to a byte value, from -7 for Cb major or Ab major to +7 for C# minor or A# minor, with 0 being C major or A minor */ 
+    /** Turns number of accidentals (negative for flats, positive for sharps) to a key and returns the key's root note's position
+     *  in the octave */
+    public byte convertAccidentalCountToKeyRootPositionInOctave(int accidentalCount, byte scale);
+    
+    /** Converts the given Key to a byte value, from -7 for Cb major or Ab minor to +7 for C# major or A# minor, 
+     * with 0 being C major or A minor */ 
     public byte convertKeyToByte(Key key);
 }

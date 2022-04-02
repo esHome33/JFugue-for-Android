@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MidiDictionary {
+	@SuppressWarnings("serial")
 	public static Map<Byte, String> INSTRUMENT_BYTE_TO_STRING = new HashMap<Byte, String>() {{
 		put((byte)0, "Piano");
 		put((byte)1, "Bright_Acoustic");
@@ -30,7 +31,7 @@ public class MidiDictionary {
 		put((byte)3, "Honkey_Tonk");
 		put((byte)4, "Electric_Piano");
 		put((byte)5, "Electric_Piano_2");
-		put((byte)6, "Harpischord");
+		put((byte)6, "Harpsichord");
 		put((byte)7, "Clavinet");
 		put((byte)8, "Celesta");
 		put((byte)9, "Glockenspiel");
@@ -166,6 +167,7 @@ public class MidiDictionary {
 		put((byte)127, "Gunshot");	
 	}};
 	
+	@SuppressWarnings("serial")
 	public static Map<String, Byte> INSTRUMENT_STRING_TO_BYTE = new HashMap<String, Byte>() {{
 		put("PIANO", (byte)0);
 		put("BRIGHT_ACOUSTIC", (byte)1);
@@ -173,7 +175,7 @@ public class MidiDictionary {
 		put("HONKEY_TONK", (byte)3);
 		put("ELECTRIC_PIANO", (byte)4);
 		put("ELECTRIC_PIANO_2", (byte)5);
-		put("HARPISCHORD", (byte)6);
+		put("HARPSICHORD", (byte)6);
 		put("CLAVINET", (byte)7);
 		put("CELESTA", (byte)8);
 		put("GLOCKENSPIEL", (byte)9);
@@ -310,6 +312,7 @@ public class MidiDictionary {
 		
 	}};
 
+	@SuppressWarnings("serial")
 	public static Map<Integer, String> TEMPO_INT_TO_STRING = new HashMap<Integer, String>() {{
 		put(40, "GRAVE");
 		put(45, "LARGO");
@@ -327,6 +330,7 @@ public class MidiDictionary {
 		put(220, "PRETISSIMO");
 	}};
 
+	@SuppressWarnings("serial")
 	public static Map<String, Integer> TEMPO_STRING_TO_INT = new HashMap<String, Integer>() {{
 		put("GRAVE", 40);
 		put("LARGO", 45);
@@ -341,6 +345,219 @@ public class MidiDictionary {
 		put("ALLEGRO", 120);
 		put("VIVACE", 145);
 		put("PRESTO", 180);
-		put("PRETISSIMO", 220);
+		put("PRESTISSIMO", 220);
 	}};
+	
+	@SuppressWarnings("serial")
+	public static Map<Integer, String> CONTROLLER_INT_TO_STRING = new HashMap<Integer, String>() {{
+	    put(0, "BANK_SELECT_COARSE");
+	    put(1, "MOD_WHEEL_COARSE");
+	    put(2, "BREATH_COARSE");
+	    put(4, "FOOT_PEDAL_COARSE");
+	    put(5, "PORTAMENTO_TIME_COARSE");
+	    put(6, "DATA_ENTRY_COARSE");
+	    put(7, "VOLUME_COARSE");
+	    put(8, "BALANCE_COARSE");
+	    put(10, "PAN_POSITION_COARSE");
+
+	    put(11, "EXPRESSION_COARSE");
+	    put(12, "EFFECT_CONTROL_1_COARSE");
+	    put(13, "EFFECT_CONTROL_2_COARSE");
+	    put(16, "SLIDER_1");
+	    put(17, "SLIDER_2");
+	    put(18, "SLIDER_3");
+	    put(19, "SLIDER_4");
+
+	    put(32, "BANK_SELECT_FINE");
+	    put(33, "MOD_WHEEL_FINE");
+	    put(34, "BREATH_FINE");
+	    put(36, "FOOT_PEDAL_FINE");
+	    put(37, "PORTAMENTO_TIME_FINE");
+	    put(38, "DATA_ENTRY_FINE");
+	    put(39, "VOLUME_FINE");
+	    put(40, "BALANCE_FINE");
+	    put(42, "PAN_POSITION_FINE");
+	    put(43, "EXPRESSION_FINE");
+	    put(44, "EFFECT_CONTROL_1_FINE");
+	    put(45, "EFFECT_CONTROL_2_FINE");
+
+	    put(64, "HOLD_PEDAL");
+	    put(65, "PORTAMENTO");
+	    put(66, "SUSTENUTO_PEDAL");
+	    put(67, "SOFT_PEDAL");
+	    put(68, "LEGATO_PEDAL");
+	    put(69, "HOLD_2_PEDAL");
+
+	    put(70, "SOUND_VARIATION");
+	    put(71, "SOUND_TIMBRE");
+	    put(72, "SOUND_RELEASE_TIME");
+	    put(73, "SOUND_ATTACK_TIME");
+	    put(74, "SOUND_BRIGHTNESS");
+	    put(75, "SOUND_CONTROL_6");
+	    put(76, "SOUND_CONTROL_7");
+	    put(77, "SOUND_CONTROL_8");
+	    put(78, "SOUND_CONTROL_9");
+	    put(79, "SOUND_CONTROL_10");
+
+	    put(80, "GENERAL_PURPOSE_BUTTON_1");
+	    put(81, "GENERAL_PURPOSE_BUTTON_2");
+	    put(82, "GENERAL_PURPOSE_BUTTON_3");
+	    put(83, "GENERAL_PURPOSE_BUTTON_4");
+
+	    put(91, "EFFECTS_LEVEL");
+	    put(92, "TREMULO_LEVEL");
+	    put(93, "CHORUS_LEVEL");
+	    put(94, "CELESTE_LEVEL");
+	    put(95, "PHASER_LEVEL");
+
+	    put(96, "DATA_BUTTON_INCREMENT");
+	    put(97, "DATA_BUTTON_DECREMENT");
+
+	    put(98, "NON_REGISTERED_COARSE");
+	    put(99, "NON_REGISTERED_FINE");
+	    put(100, "REGISTERED_COARSE");
+	    put(101, "REGISTERED_FINE");
+
+	    put(120, "ALL_SOUND_OFF");
+	    put(121, "ALL_CONTROLLERS_OFF");
+	    put(122, "LOCAL_KEYBOARD");
+	    put(123, "ALL_NOTES_OFF");
+	    put(124, "OMNI_MODE_OFF");
+	    put(125, "OMNI_MODE_ON");
+	    put(126, "MONO_OPERATION");
+	    put(127, "POLY_OPERATION");
+
+	    //
+	    // Combined Controller names
+	    // (index = coarse_controller_index * 128 + fine_controller_index)
+	    //
+	    put(16383, "BANK_SELECT");
+	    put(161, "MOD_WHEEL");
+	    put(290, "BREATH");
+	    put(548, "FOOT_PEDAL");
+	    put(677, "PORTAMENTO_TIME");
+	    put(806, "DATA_ENTRY");
+	    put(935, "VOLUME");
+	    put(1064, "BALANCE");
+	    put(1322, "PAN_POSITION");
+	    put(1451, "EXPRESSION");
+	    put(1580, "EFFECT_CONTROL_1");
+	    put(1709, "EFFECT_CONTROL_2");
+	    put(12770, "NON_REGISTERED");
+	    put(13028, "REGISTERED");
+
+	    //
+	    // Values for controllers
+	    //
+	    put(127, "ON");
+	    put(0, "OFF");
+	    put(64, "DEFAULT");	    
+	}};
+	
+	@SuppressWarnings("serial")
+	public static Map<String, Integer> CONTROLLER_STRING_TO_INT = new HashMap<String, Integer>() {{
+	    put("BANK_SELECT_COARSE", 0);
+	    put("MOD_WHEEL_COARSE", 1);
+	    put("BREATH_COARSE", 2);
+	    put("FOOT_PEDAL_COARSE", 4);
+	    put("PORTAMENTO_TIME_COARSE", 5);
+	    put("DATA_ENTRY_COARSE", 6);
+	    put("VOLUME_COARSE", 7);
+	    put("BALANCE_COARSE", 8);
+	    put("PAN_POSITION_COARSE", 10);
+
+	    put("EXPRESSION_COARSE", 11);
+	    put("EFFECT_CONTROL_1_COARSE", 12);
+	    put("EFFECT_CONTROL_2_COARSE", 13);
+	    put("SLIDER_1", 16);
+	    put("SLIDER_2", 17);
+	    put("SLIDER_3", 18);
+	    put("SLIDER_4", 19);
+
+	    put("BANK_SELECT_FINE", 32);
+	    put("MOD_WHEEL_FINE", 33);
+	    put("BREATH_FINE", 34);
+	    put("FOOT_PEDAL_FINE", 36);
+	    put("PORTAMENTO_TIME_FINE", 37);
+	    put("DATA_ENTRY_FINE", 38);
+	    put("VOLUME_FINE", 39);
+	    put("BALANCE_FINE", 40);
+	    put("PAN_POSITION_FINE", 42);
+	    put("EXPRESSION_FINE", 43);
+	    put("EFFECT_CONTROL_1_FINE", 44);
+	    put("EFFECT_CONTROL_2_FINE", 45);
+
+	    put("HOLD_PEDAL", 64);
+	    put("PORTAMENTO", 65);
+	    put("SUSTENUTO_PEDAL", 66);
+	    put("SOFT_PEDAL", 67);
+	    put("LEGATO_PEDAL", 68);
+	    put("HOLD_2_PEDAL", 69);
+
+	    put("SOUND_VARIATION", 70);
+	    put("SOUND_TIMBRE", 71);
+	    put("SOUND_RELEASE_TIME", 72);
+	    put("SOUND_ATTACK_TIME", 73);
+	    put("SOUND_BRIGHTNESS", 74);
+	    put("SOUND_CONTROL_6", 75);
+	    put("SOUND_CONTROL_7", 76);
+	    put("SOUND_CONTROL_8", 77);
+	    put("SOUND_CONTROL_9", 78);
+	    put("SOUND_CONTROL_10", 79);
+
+	    put("GENERAL_PURPOSE_BUTTON_1", 80);
+	    put("GENERAL_PURPOSE_BUTTON_2", 81);
+	    put("GENERAL_PURPOSE_BUTTON_3", 82);
+	    put("GENERAL_PURPOSE_BUTTON_4", 83);
+
+	    put("EFFECTS_LEVEL", 91);
+	    put("TREMULO_LEVEL", 92);
+	    put("CHORUS_LEVEL", 93);
+	    put("CELESTE_LEVEL", 94);
+	    put("PHASER_LEVEL", 95);
+
+	    put("DATA_BUTTON_INCREMENT", 96);
+	    put("DATA_BUTTON_DECREMENT", 97);
+
+	    put("NON_REGISTERED_COARSE", 98);
+	    put("NON_REGISTERED_FINE", 99);
+	    put("REGISTERED_COARSE", 100);
+	    put("REGISTERED_FINE", 101);
+
+	    put("ALL_SOUND_OFF", 120);
+	    put("ALL_CONTROLLERS_OFF", 121);
+	    put("LOCAL_KEYBOARD", 122);
+	    put("ALL_NOTES_OFF", 123);
+	    put("OMNI_MODE_OFF", 124);
+	    put("OMNI_MODE_ON", 125);
+	    put("MONO_OPERATION", 126);
+	    put("POLY_OPERATION", 127);
+
+	    //
+	    // Combined Controller names
+	    // (index = coarse_controller_index * 128 + fine_controller_index)
+	    //
+	    put("BANK_SELECT", 16383);
+	    put("MOD_WHEEL", 161);
+	    put("BREATH", 290);
+	    put("FOOT_PEDAL", 548);
+	    put("PORTAMENTO_TIME", 677);
+	    put("DATA_ENTRY", 806);
+	    put("VOLUME", 935);
+	    put("BALANCE", 1064);
+	    put("PAN_POSITION", 1322);
+	    put("EXPRESSION", 1451);
+	    put("EFFECT_CONTROL_1", 1580);
+	    put("EFFECT_CONTROL_2", 1709);
+	    put("NON_REGISTERED", 12770);
+	    put("REGISTERED", 13028);
+
+	    //
+	    // Values for controllers
+	    //
+	    put("ON", 127);
+	    put("OFF", 0);
+	    put("DEFAULT", 64);
+	}};
+	
 }

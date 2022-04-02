@@ -19,6 +19,7 @@
 
 package org.staccato;
 
+import org.jfugue.pattern.Token.TokenType;
 
 /**
  * Catches bar lines 
@@ -43,6 +44,15 @@ public class BarLineSubparser implements Subparser
 		return music.charAt(0) == BARLINE;
 	}
 
+	@Override
+	public TokenType getTokenType(String tokenString) {
+	    if (tokenString.charAt(0) == BARLINE) {
+	        return TokenType.BAR_LINE;
+	    }
+	    
+	    return TokenType.UNKNOWN_TOKEN;
+	}
+	
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (music.charAt(0) == BARLINE) {

@@ -19,6 +19,8 @@
 
 package org.staccato;
 
+import org.jfugue.pattern.Token.TokenType;
+
 public class BeatTimeSubparser implements Subparser 
 {
 	public static final char BEATTIME = '@';
@@ -38,6 +40,18 @@ public class BeatTimeSubparser implements Subparser
 		return (music.charAt(0) == BEATTIME);
 	}
 
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (tokenString.charAt(0) == BEATTIME) {
+            if (tokenString.charAt(1) == BEATTIME_USE_MARKER) {
+                return TokenType.TRACK_TIME_BOOKMARK_REQUESTED;
+            }
+            return TokenType.TRACK_TIME_BOOKMARK;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }
+    
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (music.charAt(0) == BEATTIME) {

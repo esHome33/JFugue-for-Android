@@ -145,6 +145,16 @@ public class DiagnosticParserListener implements ParserListener
     }
 
     @Override
+    public void onNotePressed(Note note) {
+        print("Note pressed: value = "+note.getValue()+"  onVelocity = "+note.getOnVelocity());
+    }
+
+    @Override
+    public void onNoteReleased(Note note) {
+        print("Note released: value = "+note.getValue()+"  offVelocity = "+note.getOffVelocity());
+    }
+
+    @Override
     public void onNoteParsed(Note note) {
         print("Note parsed: value = "+note.getValue()+"  duration = "+note.getDuration()+"  onVelocity = "+note.getOnVelocity()+"  offVelocity = "+note.getOffVelocity());
     }

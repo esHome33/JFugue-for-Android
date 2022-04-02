@@ -19,6 +19,8 @@
 
 package org.staccato;
 
+import org.jfugue.pattern.Token.TokenType;
+
 public class LyricMarkerSubparser implements Subparser 
 {
 	public static final char LYRIC = '\'';
@@ -38,6 +40,19 @@ public class LyricMarkerSubparser implements Subparser
 		return ((music.charAt(0) == LYRIC) || (music.charAt(0) == MARKER));
 	}
 
+	@Override
+	public TokenType getTokenType(String tokenString) {
+	    if (tokenString.charAt(0) == LYRIC) {
+	        return TokenType.LYRIC;
+	    }
+	    
+	    if (tokenString.charAt(0) == MARKER) {
+	        return TokenType.MARKER;
+	    }
+	    
+	    return TokenType.UNKNOWN_TOKEN;
+	}
+	
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if ((music.charAt(0) == LYRIC) || (music.charAt(0) == MARKER)) {

@@ -20,6 +20,7 @@
 package org.staccato;
 
 import org.jfugue.midi.MidiDictionary;
+import org.jfugue.pattern.Token.TokenType;
 
 /**
  * Parses Instrument, Voice, and Layer tokens. Each has values that are parsed as bytes. 
@@ -48,21 +49,37 @@ public class IVLSubparser implements Subparser
 				(music.charAt(0) == LAYER));
 	}
 
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (tokenString.charAt(0) == VOICE) {
+            return TokenType.VOICE;
+        }
+        if (tokenString.charAt(0) == INSTRUMENT) {
+            return TokenType.INSTRUMENT;
+        }
+        if (tokenString.charAt(0) == LAYER) {
+            return TokenType.LAYER;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }
+    
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (matches(music)) {
 			int posNextSpace = StaccatoUtil.findNextOrEnd(music, ' ', 0);
 			byte value = -1;
 			if (posNextSpace > 1) {
-				String instrumentId = music.substring(1, posNextSpace);
-				if (instrumentId.matches("\\d+")) {
-					value = Byte.parseByte(instrumentId);
-				} else {
-					if (instrumentId.charAt(0) == '[') {
-						instrumentId = instrumentId.substring(1, instrumentId.length()-1);
-					}
-					value = (Byte)context.getDictionary().get(instrumentId);
-				}
+				value = getValue(music.substring(0, posNextSpace), context);
+//				String instrumentId = music.substring(1, posNextSpace);
+//				if (instrumentId.matches("\\d+")) {
+//					value = Byte.parseByte(instrumentId);
+//				} else {
+//					if (instrumentId.charAt(0) == '[') {
+//						instrumentId = instrumentId.substring(1, instrumentId.length()-1);
+//					}
+//					value = (Byte)context.getDictionary().get(instrumentId);
+//				}
 			}
 			switch (music.charAt(0)) {
 				case INSTRUMENT: context.getParser().fireInstrumentParsed(value); break;
@@ -73,6 +90,19 @@ public class IVLSubparser implements Subparser
 			return posNextSpace + 1;
 		}
 		return 0;
+	}
+	
+	/** Given a string like "V0" or "I[Piano]", this method will return the value of the token */
+	public byte getValue(String ivl, StaccatoParserContext context) {
+		String instrumentId = ivl.substring(1, ivl.length());
+		if (instrumentId.matches("\\d+")) {
+			return Byte.parseByte(instrumentId);
+		} else {
+			if (instrumentId.charAt(0) == '[') {
+				instrumentId = instrumentId.substring(1, instrumentId.length()-1);
+			}
+			return (Byte)context.getDictionary().get(instrumentId);
+		}
 	}
 	
     public static void populateContext(StaccatoParserContext context) {

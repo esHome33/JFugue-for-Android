@@ -150,6 +150,12 @@ public class TemporalPLP extends Parser implements ParserListener
     }
 
     @Override
+    public void onNotePressed(Note note) { }
+    
+    @Override
+    public void onNoteReleased(Note note) { }
+    
+    @Override
     public void onNoteParsed(Note note) {
         this.eventManager.addRealTimeEvent(events.new NoteEvent(note));
     }

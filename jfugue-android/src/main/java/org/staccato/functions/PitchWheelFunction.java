@@ -45,7 +45,7 @@ public class PitchWheelFunction implements SubparserFunction
 	public void apply(String parameters, StaccatoParserContext context) {
 		String[] params = parameters.split(",");
 		if (params.length == 2) {
-			context.getParser().firePitchWheelParsed(Byte.parseByte(params[0]), Byte.parseByte(params[1]));	
+			context.getParser().firePitchWheelParsed(Byte.parseByte(params[0].trim()), Byte.parseByte(params[1].trim()));	
 		} 
 		else if (params.length == 1) {
 			int pitch = Integer.parseInt(params[0]);
@@ -53,5 +53,5 @@ public class PitchWheelFunction implements SubparserFunction
 		}
 	}
 	
-	public static String[] NAMES = { "PW", "PITCHWHEEL" };
+	public static String[] NAMES = { "PW", "PITCHWHEEL", "PB", "PITCHBEND" };
 }

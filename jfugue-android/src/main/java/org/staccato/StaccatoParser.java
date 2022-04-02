@@ -67,8 +67,10 @@ public class StaccatoParser extends Parser {
 		preprocessors.add(ParenSpacesPreprocessor.getInstance());
 		preprocessors.add(FunctionPreprocessor.getInstance());
 		preprocessors.add(MicrotonePreprocessor.getInstance());
+        preprocessors.add(BrokenChordPreprocessor.getInstance());
 		
 		subparsers = new LinkedList<Subparser>();
+		subparsers.add(AtomSubparser.getInstance());
 		subparsers.add(NoteSubparser.getInstance());
 		subparsers.add(BarLineSubparser.getInstance());
 		subparsers.add(IVLSubparser.getInstance());
@@ -77,6 +79,14 @@ public class StaccatoParser extends Parser {
 		subparsers.add(BeatTimeSubparser.getInstance());
 		subparsers.add(LyricMarkerSubparser.getInstance());
 		subparsers.add(FunctionSubparser.getInstance());
+	}
+	
+	public StaccatoParserContext getContext() {
+		return this.context;
+	}
+	
+	protected List<Subparser> getSubparsers() {
+	    return this.subparsers;
 	}
 	
 	public void setThrowsExceptionOnUnknownToken(boolean b) {
@@ -102,15 +112,14 @@ public class StaccatoParser extends Parser {
 		return s;
 	}
 
+	protected String[] preprocessAndSplit(String s) {
+        return preprocess(s).split(" ");
+    }
+	
 	public void parse(String s) {
 		fireBeforeParsingStarts();
 
-		// First, run the pre-processors
-		s = preprocess(s);
-
-		// Now, parse the music
-		String[] strings = s.split(" ");
-		for (String substring : strings) {
+		for (String substring : preprocessAndSplit(s)) {
 			if (!substring.isEmpty()) {
 				boolean matchingSubparserFound = false;
 				for (Subparser sub : subparsers) {

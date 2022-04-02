@@ -20,7 +20,7 @@
 package org.jfugue.pattern;
 
 /**
- * Indicates that the implementing class can return a Pattern through the getPattern method
+ * Indicates that the implementing class can return a Pattern through the {@link #getPattern()} method
  */
 public interface PatternProducer 
 {

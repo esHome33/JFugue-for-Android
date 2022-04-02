@@ -36,6 +36,7 @@ import jp.kshoji.javax.sound.midi.InvalidMidiDataException;
 import jp.kshoji.javax.sound.midi.MidiSystem;
 import jp.kshoji.javax.sound.midi.Sequence;
 
+
 public class MidiFileManager 
 {
 	public static void save(Sequence sequence, OutputStream out) throws IOException {
@@ -47,6 +48,10 @@ public class MidiFileManager
 	/** Convenience method to make it easier to save a file */ 
 	public static void save(Sequence sequence, File file) throws IOException {
 		MidiFileManager.save(sequence, new FileOutputStream(file));
+	}
+	
+	public static Sequence load(File file) throws IOException, InvalidMidiDataException {
+	    return MidiSystem.getSequence(file);
 	}
 	
 	public static void savePatternToMidi(PatternProducer patternProducer, OutputStream out) throws IOException {

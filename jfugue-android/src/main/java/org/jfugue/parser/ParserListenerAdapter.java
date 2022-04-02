@@ -85,6 +85,12 @@ public class ParserListenerAdapter implements ParserListener {
 	public void onFunctionParsed(String id, Object message) { }
 
 	@Override
+	public void onNotePressed(Note note) { }
+	
+	@Override
+	public void onNoteReleased(Note note) { }
+	
+	@Override
 	public void onNoteParsed(Note note) { }
 
 	@Override

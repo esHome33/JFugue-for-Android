@@ -74,7 +74,7 @@ public class StaccatoElementSorter extends TrackTimeManager implements ParserLis
 
 	@Override
 	public void onLayerChanged(byte layer) {
-		super.setCurrentLayer(layer);
+		super.setCurrentLayerNumber(layer);
 		// Purposefully, the layer change element is not added to the map
 	}
 
@@ -162,7 +162,13 @@ public class StaccatoElementSorter extends TrackTimeManager implements ParserLis
 		addToTimeMap(StaccatoUtil.createFunctionElement(id, message));
 	}
 
-	@Override
+    @Override
+    public void onNotePressed(Note note) { }
+    
+    @Override
+    public void onNoteReleased(Note note) { }
+
+    @Override
 	public void onNoteParsed(Note note) {
 		addNote(note);
 	}
@@ -201,7 +207,7 @@ public class StaccatoElementSorter extends TrackTimeManager implements ParserLis
 	}
 
 	private void addToTimeMap(String string) {
-		ElementWithTrack elementWithTrack = new ElementWithTrack(getCurrentTrack(), getCurrentLayer(), string);
+		ElementWithTrack elementWithTrack = new ElementWithTrack(getCurrentTrackNumber(), getCurrentLayerNumber(), string);
 		List<ElementWithTrack> elementList = timeMap.get(getTrackBeatTime());
 		if (elementList == null) {
 			elementList = new ArrayList<ElementWithTrack>();

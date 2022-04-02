@@ -2,6 +2,7 @@ package org.staccato.maps;
 
 import java.util.HashMap;
 
+@SuppressWarnings("serial")
 public class SolfegeReplacementMap extends HashMap<String, String> {{
 	put("DO", "C");
 	put("RE", "D");

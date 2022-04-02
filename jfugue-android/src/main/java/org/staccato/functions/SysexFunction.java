@@ -50,5 +50,5 @@ public class SysexFunction implements SubparserFunction
 		context.getParser().fireSystemExclusiveParsed(bytes);	
 	}
 	
-	public static String[] NAMES = { "SYSEX", "SE", "SX", "SYSTEM", "SYS", "SYSTEMEXCLUSIVE" };
+	public static String[] NAMES = { "SYSEX", "SE", "SYSTEMEXCLUSIVE" };
 }

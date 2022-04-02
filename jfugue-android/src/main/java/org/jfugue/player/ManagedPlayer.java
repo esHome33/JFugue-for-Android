@@ -71,7 +71,7 @@ public class ManagedPlayer implements EndOfTrackListener
 		common.openSequencer();
 		common.addEndOfTrackListener(this);
 		common.getSequencer().setSequence(sequence);
-		fireOnStarted();
+		fireOnStarted(sequence);
 		this.started = true;
 		this.paused = false;
 		this.finished = false;
@@ -107,6 +107,14 @@ public class ManagedPlayer implements EndOfTrackListener
     	fireOnFinished();
     }
     
+    public void reset() {
+        common.close();
+        this.started = false;
+        this.paused = false;
+        this.finished = false;
+        fireOnReset();
+    }
+    
     public long getTickLength() {
     	return common.getSequencer().getTickLength();
     }
@@ -136,10 +144,10 @@ public class ManagedPlayer implements EndOfTrackListener
    		finish();
     }
     
-	protected void fireOnStarted() { 
+	protected void fireOnStarted(Sequence sequence) { 
 	    List<ManagedPlayerListener> listeners = getManagedPlayerListeners();
 	    for (ManagedPlayerListener listener : listeners) {
-	        listener.onStarted();
+	        listener.onStarted(sequence);
 	    }
 	}	
 
@@ -170,4 +178,12 @@ public class ManagedPlayer implements EndOfTrackListener
 	        listener.onSeek(tick);
 	    }
 	}	
+
+    protected void fireOnReset() { 
+        List<ManagedPlayerListener> listeners = getManagedPlayerListeners();
+        for (ManagedPlayerListener listener : listeners) {
+            listener.onReset();
+        }
+    }   
+
 } 

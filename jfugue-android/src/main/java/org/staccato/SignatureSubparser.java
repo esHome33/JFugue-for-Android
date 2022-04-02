@@ -20,6 +20,7 @@
 package org.staccato;
 
 import org.jfugue.parser.ParserException;
+import org.jfugue.pattern.Token.TokenType;
 import org.jfugue.provider.ChordProviderFactory;
 import org.jfugue.provider.KeyProvider;
 import org.jfugue.theory.Key;
@@ -46,7 +47,7 @@ public class SignatureSubparser implements Subparser, KeyProvider
 		}
 		return instance;
 	}
-	
+
 	@Override
 	public boolean matches(String music) {
 		return (matchesKeySignature(music) || matchesTimeSignature(music));
@@ -60,7 +61,19 @@ public class SignatureSubparser implements Subparser, KeyProvider
 		return (music.length() >= TIME_SIGNATURE.length()) && (music.substring(0, TIME_SIGNATURE.length()).equals(TIME_SIGNATURE));
 	}
 	
-	@Override
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (matchesKeySignature(tokenString)) {
+            return TokenType.KEY_SIGNATURE;
+        }
+        if (matchesTimeSignature(tokenString)) {
+            return TokenType.TIME_SIGNATURE;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }
+    
+    @Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (matchesKeySignature(music)) {
 			int posNextSpace = StaccatoUtil.findNextOrEnd(music, ' ', 0);
@@ -92,15 +105,35 @@ public class SignatureSubparser implements Subparser, KeyProvider
 	    if (keySignature.charAt(0) == 'K' && (keySignature.indexOf(SHARP_CHAR) == 1 || (keySignature.toUpperCase().indexOf(FLAT_CHAR) == 1))) {
 	        return createKeyFromAccidentals(keySignature);
 	    }
+
+	    if (keySignature.charAt(0) == 'k' && (keySignature.indexOf(SHARP_CHAR) == 1 || (keySignature.toUpperCase().indexOf(FLAT_CHAR) == 1))) {
+	        return createKeyFromAccidentalsMinor(keySignature);
+	    }
+
 	    
 	    // Otherwise, pass the string value - something like "Cmaj" - to createChord and generate a Key from the intervals in that chord
 		return new Key(ChordProviderFactory.getChordProvider().createChord(keySignature));
 	}
 	
-	/** Returns a Key given a string containing as many flats or sharps as the number one would see on a staff for the corresponding key; e.g., "Kbbbb" = Ab Major */
+	/** Returns a MAJOR Key given a string containing as many flats or sharps as the number one would see on a staff 
+	 * for the corresponding key. e.g., Kbbbb = Ab Major or K## = D Major
+	 * @param keySignature the number of flats or sharps ex: K## or Kbbbb
+	 * @return the corresponding major key. e.g. : Kbbbb = Ab Major or K## = D Major  
+	 **/
 	public Key createKeyFromAccidentals(String keySignature) {
 		return new Key(MAJOR_KEY_SIGNATURES[KEYSIG_MIDPOINT + countAccidentals(keySignature)] + MAJOR_ABBR);
 	}
+
+	/** Returns a MINOR Key given a string containing as many flats or sharps as the number one would see on a staff 
+	 * for the corresponding minor key. e.g., kbbbb = F Minor or k## = B Minor
+	 * @param keySignature the number of flats or sharps ex: k## or kbbbb
+	 * @return the corresponding minor key. e.g. : kbbbb = F Minor or k## = B Minor
+	 * @author Etienne
+	 **/
+	public Key createKeyFromAccidentalsMinor(String keySignature) {
+		return new Key(MINOR_KEY_SIGNATURES[KEYSIG_MIDPOINT + countAccidentals(keySignature)] + MINOR_ABBR);
+	}
+
 	
 	private byte countAccidentals(String keySignatureAsFlatsOrSharps) {
 		byte keySig = 0;
@@ -123,6 +156,15 @@ public class SignatureSubparser implements Subparser, KeyProvider
         return buddy.toString();
 	}
 
+	@Override
+	public byte convertAccidentalCountToKeyRootPositionInOctave(int accidentalCount, byte scale) {
+		if (scale == Scale.MAJOR_INDICATOR) {
+			return new Note(MAJOR_KEY_SIGNATURES[KEYSIG_MIDPOINT - accidentalCount]).getPositionInOctave();
+		} else {
+			return new Note(MINOR_KEY_SIGNATURES[KEYSIG_MIDPOINT - accidentalCount]).getPositionInOctave();
+		}
+	}
+	
 	@Override
 	public byte convertKeyToByte(Key key) {
 		String noteName = Note.getDispositionedToneStringWithoutOctave(key.getScale().getDisposition(), key.getRoot().getValue());

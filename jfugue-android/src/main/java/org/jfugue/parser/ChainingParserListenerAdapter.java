@@ -137,6 +137,16 @@ public class ChainingParserListenerAdapter extends Parser implements ParserListe
 		fireFunctionParsed(id, message);
 	}
 
+    @Override
+    public void onNotePressed(Note note) { 
+        fireNotePressed(note);
+    }
+
+    @Override
+    public void onNoteReleased(Note note) { 
+        fireNoteReleased(note);
+    }
+
 	@Override
 	public void onNoteParsed(Note note) { 
 		fireNoteParsed(note);

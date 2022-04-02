@@ -19,6 +19,10 @@
 
 package org.jfugue.realtime;
 
+import jp.kshoji.javax.sound.midi.MidiChannel;
+import jp.kshoji.javax.sound.midi.MidiUnavailableException;
+import jp.kshoji.javax.sound.midi.Synthesizer;
+
 import org.jfugue.midi.MidiDictionary;
 import org.jfugue.midi.MidiTools;
 import org.jfugue.pattern.PatternProducer;
@@ -27,9 +31,6 @@ import org.jfugue.theory.Chord;
 import org.jfugue.theory.Note;
 import org.staccato.StaccatoParser;
 
-import jp.kshoji.javax.sound.midi.MidiChannel;
-import jp.kshoji.javax.sound.midi.MidiUnavailableException;
-import jp.kshoji.javax.sound.midi.Synthesizer;
 
 /**
  * This player sends messages directly to the MIDI Synthesizer, rather than creating a 

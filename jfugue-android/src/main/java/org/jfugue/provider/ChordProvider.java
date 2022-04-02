@@ -27,5 +27,10 @@ import org.jfugue.theory.Chord;
  */
 public interface ChordProvider
 {
+	/**
+	 * Creates a chord from a string containing notes
+	 * @param chordString string containing the notes of the chord to create 
+	 * @return the chord created
+	 */
     public Chord createChord(String chordString);
 }

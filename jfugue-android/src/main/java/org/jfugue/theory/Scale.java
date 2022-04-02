@@ -26,54 +26,110 @@ package org.jfugue.theory;
  * A scale in a particular key, such as C Major or A Minor, can provide the notes of the scale
  */
 public class Scale {
+	/**
+	 * the intervals describing this scale.
+	 */
     private Intervals intervals;
+    /**
+     * a name for this scale
+     */
     private String name;
+    /**
+     * indicates wether this scale is Minor or Major 
+     */
     private byte majorMinorIndicator;
     
+    /**
+     * Creates a new scale from intervals given in the parameter. Doesn't set the name and the Min/Maj indicator.
+     * @param intervalString a string containing intervals such as "1 2 3b 4" ...
+     */
     public Scale(String intervalString) {
         this(new Intervals(intervalString));
     }
     
+    /**
+     * Creates a new scale from intervals given in the 1st parameter and gives it the name
+     * @param intervalString  a string containing intervals such as "1 2 3b 4" ...
+     * @param name the name to give to this scale
+     */
     public Scale(String intervalString, String name) {
         this(new Intervals(intervalString), name);
     }
-    
+
+    /**
+     * Creates a new scale from the given {@link Intervals}. Doesn't set the name and the Min/Maj indicator.
+     * @param pattern the intervals pattern
+     */
     public Scale(Intervals pattern) {
        this.intervals = pattern; 
     }
 
+    /**
+     * Sets the intervals and the name of this scale 
+     * @param pattern an interval pattern as a string eg: "1 3 b5 7"
+     * @param name the name to give to this new scale.
+     */
     public Scale(Intervals pattern, String name) {
         this.intervals = pattern; 
         this.name = name;
     }
 
+    /**
+     * Sets the name of this scale
+     * @param name the new name
+     * @return this scale to enable chaining
+     */
     public Scale setName(String name) {
     	this.name = name;
     	return this;
     }
     
+    /**
+     * Gets the name of this scale
+     * @return the name of this scale
+     */
     public String getName() {
     	return this.name;
     }
     
+    /**
+     * gets the intervals of this scale
+     * @return the intervals of this scale
+     */
     public Intervals getIntervals() {
         return this.intervals;
     }
     
+    /**
+     * Sets the Maj/min indicator of this scale
+     * @param indicator either Scale.MAJOR_INDICATOR or Scale.MINOR_INDICATOR
+     * @return this scale for method chaining
+     */
     public Scale setMajorOrMinorIndicator(byte indicator) {
     	this.majorMinorIndicator = indicator;
     	return this;
     }
     
+    /**
+     * Gets this maj/min indicator
+     * @return maj/min indicator (either Scale.MAJOR_INDICATOR or Scale.MINOR_INDICATOR)
+     */
     public byte getMajorOrMinorIndicator() {
     	return this.majorMinorIndicator;
     }
     
-    // Returns +1 for MAJOR or -1 for MINOR
+    /** 
+     * Returns +1 for MAJOR or -1 for MINOR
+     * @return 1 for Major or -1 for Minor
+     */
     public int getDisposition() {
     	return (this.majorMinorIndicator == MAJOR_INDICATOR ? 1 : -1);
     }
     
+    /**
+     * gives a string representation of this Scale : if  {@link #majorMinorIndicator} is set, returns "maj" or "min".
+     * Else returns the name of this scale ({@link #name})
+     */
     @Override
     public String toString() {
     	if (this.majorMinorIndicator == MAJOR_INDICATOR) {
@@ -85,6 +141,12 @@ public class Scale {
     	}
     }
     
+    
+    /**
+     * if the objet in parameter isn't a scale or is null, this method returns false. 
+     * If the object is a Scale, this method returns wether the intervals of these two scales are equal.
+     * @param o an object
+     */
     @Override
     public boolean equals(Object o) {
     	if ((o == null) || (!(o instanceof Scale))) return false;

@@ -30,7 +30,8 @@ import org.jfugue.theory.Note;
 public class ComputeDurationForEachTrackTool extends ParserListenerAdapter
 {
     private double[] durations;
-    private double durationOfCurrentFirstNote;
+    @SuppressWarnings("unused")
+	private double durationOfCurrentFirstNote;
     private int currentTrack;
 
     public ComputeDurationForEachTrackTool()

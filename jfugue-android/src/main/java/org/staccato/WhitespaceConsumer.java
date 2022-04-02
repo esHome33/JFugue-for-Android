@@ -22,6 +22,8 @@ package org.staccato;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jfugue.pattern.Token.TokenType;
+
 /**
  * Consumes whitespace between tokens in the music string
  * 
@@ -29,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class WhitespaceConsumer implements Subparser 
 {
-	private static final Pattern whitespacePattern = Pattern.compile("^\\s+");
+	private static final java.util.regex.Pattern whitespacePattern = Pattern.compile("^\\s+");
 	
 	private static WhitespaceConsumer instance;
 	
@@ -46,6 +48,15 @@ public class WhitespaceConsumer implements Subparser
 		return m.find();
 	}
 
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (matches(tokenString)) {
+            return TokenType.WHITESPACE;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }
+    
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		Matcher m = whitespacePattern.matcher(music);

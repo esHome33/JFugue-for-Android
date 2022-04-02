@@ -25,28 +25,49 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
+import org.jfugue.midi.MidiDefaults;
 import org.jfugue.midi.MidiDictionary;
+import org.jfugue.parser.ParserListener;
+import org.jfugue.pattern.Token.TokenType;
 import org.staccato.IVLSubparser;
-import org.staccato.NoteSubparser;
+import org.staccato.StaccatoParser;
+import org.staccato.StaccatoParserPatternHelper;
 import org.staccato.TempoSubparser;
 
-public class Pattern implements PatternProducer
+/**
+ * A pattern is a Staccato String containing notes, instruments, voices, layers and/or tempi.
+ *
+ */
+public class Pattern implements PatternProducer, TokenProducer
 {
 	protected StringBuilder patternSB;
 	private int explicitVoice = UNDECLARED_EXPLICIT;
+	private int explicitLayer = UNDECLARED_EXPLICIT;
 	private int explicitInstrument = UNDECLARED_EXPLICIT;
 	private int explicitTempo = UNDECLARED_EXPLICIT;
 	
+	/**
+	 * Creates a new empty pattern
+	 */
 	public Pattern() { 
 	    patternSB = new StringBuilder();
 	}
 	    
+	/**
+	 * Creates a pattern containing the given string
+	 * @param string a pattern
+	 */
 	public Pattern(String string) {
 		this();
 	    patternSB.append(string);
 	}
 	
+	/**
+	 * Creates a new pattern that appends the differents patterns given as parameter
+	 * @param strings differents patterns
+	 */
 	public Pattern(String... strings) {
 		this();
 	    for (String string : strings) {
@@ -55,11 +76,20 @@ public class Pattern implements PatternProducer
 	    }
 	}
 	
+	/**
+	 * Creates a new Pattern with the given pattern producers 
+	 * @param producers the patterns to add to this pattern.
+	 */
     public Pattern(PatternProducer... producers) {
         this();
         this.add(producers);
     }
     
+    /**
+     * appends all the patterns given by the different producers
+     * @param producers producers containing patterns to add to this pattern
+     * @return this pattern (for method chaining)
+     */
     public Pattern add(PatternProducer... producers) {
         for (PatternProducer producer : producers) {
             this.add(producer.getPattern().toString());
@@ -67,6 +97,11 @@ public class Pattern implements PatternProducer
         return this;
     }
     
+    /**
+     * Appends the given pattern at the end of this pattern
+     * @param string the pattern to append
+     * @return this pattern (modified) for method chaining
+     */
     public Pattern add(String string) {
         if (patternSB.length() > 0) {
         	patternSB.append(" ");
@@ -74,14 +109,57 @@ public class Pattern implements PatternProducer
         patternSB.append(string);
         return this;
     }
-    
-    public Pattern prepend(PatternProducer... producers) {
-        for (PatternProducer producer : producers) {
-            this.prepend(producer.getPattern().toString());
+
+    /**
+     * Appends the given patterns at the end of this pattern a given number of times
+     * @param producer the producer containing the pattern to append to this pattern
+     * @param repetitions number of time to repeat the same add operation
+     * @return this pattern (modified) for method chaining
+     */
+    public Pattern add(PatternProducer producer, int repetitions) {
+        for (int i=0; i < repetitions; i++) {
+            this.add(producer);
         }
         return this;
     }
+
     
+    /**
+     * Appends a pattern a given number of times to this pattern.
+     * @param string the pattern to append to this pattern
+     * @param repetitions the number of time to repeat the same add operation
+     * @return this pattern (modified) for method chaining
+     */
+    public Pattern add(String string, int repetitions) {
+        for (int i=0; i < repetitions; i++) {
+            this.add(string);
+        }
+        return this;
+    }
+
+    /**
+     * Prepends each producer in the order it is passed in, 
+     * so if you pass in "F F", "G G", and "E E", and the current
+     * pattern is "A A", you will get "F F G G E E A A".
+     * @return this pattern (modified) for method chaining
+     */
+    public Pattern prepend(PatternProducer... producers) {
+        StringBuilder temp = new StringBuilder();
+        for (PatternProducer producer : producers) {
+            temp.append(producer.getPattern().toString());
+            temp.append(" ");
+        }
+        this.prepend(temp.toString().trim());
+        return this;
+    }
+    
+    /** 
+     * Inserts the given string to the beginning of this pattern.
+     * If there is content in this pattern already, this method will
+     * insert a space between the given string and this pattern so
+     * the tokens remain separate.
+     * @return this pattern (modified) for method chaining
+     */
     public Pattern prepend(String string) {
     	if (patternSB.length() > 0) {
     		patternSB.insert(0, " ");
@@ -90,21 +168,20 @@ public class Pattern implements PatternProducer
     	return this;
     }
     
-    // This method necessarily digs into Staccato to get the VOICE indicator
-    public Pattern addTrack(int trackNumber, PatternProducer producer) {
-    	patternSB.append(" ");
-    	patternSB.append(IVLSubparser.VOICE);
-    	patternSB.append(trackNumber);
-    	patternSB.append(" ");
-    	patternSB.append(producer);
-    	return this;
-    }
-    
+    /**
+     * Clears this pattern
+     * @return this pattern (modified) for method chaining
+     */
     public Pattern clear() {
     	patternSB.delete(0, patternSB.length());
     	return this;
     }
     
+    /**
+     * modifies this pattern so that the initial pattern is repeated n times.
+     * @param n the number of times to repeat the initial pattern
+     * @return this pattern modified for method chaining
+     */
     public Pattern repeat(int n) {
     	Pattern p2 = new Pattern();
     	for (int i=0; i < n; i++) {
@@ -113,12 +190,71 @@ public class Pattern implements PatternProducer
     	this.patternSB = p2.patternSB;
     	return this;
     }
-    
-	@Override
+        
+    /**
+     * Turns the given pattern into a pattern of Voice-Instrument-Note atoms
+     * 
+     * @return this pattern for method chaining
+     */
+    public Pattern atomize() {
+    	String currentVoice;
+    	String[] currentLayer = new String[MidiDefaults.TRACKS];      // Most recent layer for each voice
+    	String[] currentInstrument = new String[MidiDefaults.TRACKS]; // Most recent instrument for each voice
+    	List<Token> tokens = this.getTokens();
+
+    	// Set current values
+    	currentVoice = "" + IVLSubparser.VOICE + valueOrZero(this.explicitVoice);
+    	currentLayer[valueOrZero(this.explicitVoice)] = "" + IVLSubparser.LAYER + valueOrZero(this.explicitLayer);
+    	currentInstrument[valueOrZero(this.explicitVoice)] = "" + IVLSubparser.INSTRUMENT + valueOrZero(this.explicitInstrument);
+    	
+    	// Clear the current contents of pattern (except for Tempo)
+    	this.patternSB.delete(0, this.patternSB.length()); 
+    	this.explicitVoice = UNDECLARED_EXPLICIT;
+    	this.explicitLayer = UNDECLARED_EXPLICIT;
+    	this.explicitInstrument = UNDECLARED_EXPLICIT;
+    	
+    	int voiceCounter = 0;
+    	for (Token token : tokens) {
+    		String s = token.getPattern().toString();
+    		switch (token.getType()) {
+    		case VOICE: 
+    			currentVoice = s; 
+    		    voiceCounter = IVLSubparser.getInstance().getValue(currentVoice, null); 
+    		    if (currentLayer[voiceCounter] == null) currentLayer[voiceCounter] = IVLSubparser.LAYER + "0"; 
+    		    if (currentInstrument[voiceCounter] == null) currentInstrument[voiceCounter] = IVLSubparser.INSTRUMENT + "0"; 
+    		    break;
+    		case LAYER: currentLayer[voiceCounter] = s; break;
+    		case INSTRUMENT: currentInstrument[voiceCounter] = s; break;
+    		case NOTE: this.add(new Atom(currentVoice, currentLayer[voiceCounter], currentInstrument[voiceCounter], s)); break;
+    		default: this.add(s); break;
+    		} 
+    	}
+    	
+    	return this;
+    }
+
+    /**
+     * If the provided value is equal to UNDECLARED_EXPLICIT, return 0. 
+     * Otherwise, return the value.
+     */
+    private int valueOrZero(int value) {
+    	return (value == UNDECLARED_EXPLICIT ? 0 : value);
+    }
+   
+    @Override
     public Pattern getPattern() {
 	    return this;
 	}
 	
+	@Override
+	public List<Token> getTokens() {
+	    StaccatoParserPatternHelper spph = new StaccatoParserPatternHelper();
+	    return spph.getTokens(this.getPattern());
+	}
+	
+	/**
+	 * A string representation of a Pattern : its a Staccato String containing Tempo, Voice, Layer, Instrument and then the pattern.
+	 */
 	public String toString() {
 		StringBuilder b2 = new StringBuilder();
 
@@ -135,7 +271,14 @@ public class Pattern implements PatternProducer
 			b2.append(explicitVoice);
 			b2.append(" ");
 		}
-		
+
+		// Add the explicit layer, if one has been provided
+		if (explicitLayer != UNDECLARED_EXPLICIT) {
+			b2.append(IVLSubparser.LAYER);
+			b2.append(explicitVoice);
+			b2.append(" ");
+		}
+
 		// Add the explicit voice, if one has been provided
 		if (explicitInstrument != UNDECLARED_EXPLICIT) {
 			b2.append(IVLSubparser.INSTRUMENT);
@@ -189,18 +332,34 @@ public class Pattern implements PatternProducer
 	}
 	
 	/**
-	 * Provides a way to explicitly set the instrument on a Pattern directly
+	 * Provides a way to explicitly set the voice on a Pattern directly
 	 * through the pattern rather than by adding text to the contents
 	 * of the Pattern.
 	 * 
 	 * When Pattern.toString() is called, the a voice will be prepended 
 	 * to the beginning of the pattern after any explicit tempo and before any
-	 * explicit instrument in the form of "Vx", where x is the voice number
+	 * explicit layer in the form of "Vx", where x is the voice number
      *
 	 * @return this pattern 
 	 */
 	public Pattern setVoice(int voice) {
 		this.explicitVoice = voice;
+		return this;
+	}
+
+	/**
+	 * Provides a way to explicitly set the layer on a Pattern directly
+	 * through the pattern rather than by adding text to the contents
+	 * of the Pattern.
+	 * 
+	 * When Pattern.toString() is called, the a layer will be prepended 
+	 * to the beginning of the pattern after any explicit voice and before any
+	 * explicit instrument in the form of "Lx", where x is the voice number
+     *
+	 * @return this pattern 
+	 */
+	public Pattern setLayer(int layer) {
+		this.explicitLayer = layer;
 		return this;
 	}
 
@@ -224,11 +383,11 @@ public class Pattern implements PatternProducer
 	 * Provides a way to explicitly set the instrument on a Pattern directly
 	 * through the pattern rather than by adding text to the contents
 	 * of the Pattern.
-	 * 
+	 * <br><br>
 	 * When Pattern.toString() is called, the a instrument will be prepended 
 	 * to the beginning of the pattern after any explicit voice in the form of 
 	 * "I[instrument-name]"
-     *
+     * @param instrument the MIDI name of the instrument. Eg : PIANO or STEEL_STRING_GUITAR
 	 * @return this pattern 
 	 */
 	public Pattern setInstrument(String instrument) {
@@ -238,65 +397,134 @@ public class Pattern implements PatternProducer
 		return setInstrument(MidiDictionary.INSTRUMENT_STRING_TO_BYTE.get(instrument.toUpperCase()));
 	}
 	
-	/*
-	 * Decorate each note
-	 */
+	
 
 	/**
 	 * Expects a parameter of "note decorators" - i.e., things that are added to 
 	 * the end of a note, such as duration or attack/decay settings; splits the given 
 	 * parameter on spaces and applies each decorator to each note as it is encountered
 	 * in the current pattern. 
-	 * 
+	 * <br><br>
 	 * If there is one decorator in the parameter, this method will apply that same
 	 * decorator to all note in the pattern.
-	 * 
+	 * <br><br>
 	 * If there are more notes than decorators, a counter resets to 0 and the decorators
 	 * starting from the first are applied to the future notes.
-	 * 
+	 * <br><br>
 	 * Examples:
-	 * 
-	 * new Pattern("A B C").addToEachNoteElement("q") 		--> "Aq Bq Cq"
-	 * new Pattern("A B C").addToEachNoteElement("q i") 	--> "Aq Bi Cq" (rolls back to q for third note)
-	 * new Pattern("A B C").addToEachNoteElement("q i s") 	--> "Aq Bi Cs"
-	 * new Pattern("A B C").addToEachNoteElement("q i s w") --> "Aq Bi Cs" (same as "q i s")
-	 * 
-	 * @return this pattern
+	 * <ul>
+	 * <li>new Pattern("A B C").addToEachNoteToken("q")       --> "Aq Bq Cq"</li>
+	 * <li>new Pattern("A B C").addToEachNoteToken("q i")     --> "Aq Bi Cq" (rolls back to q for third note)</li>
+	 * <li>new Pattern("A B C").addToEachNoteToken("q i s")   --> "Aq Bi Cs"</li>
+	 * <li>new Pattern("A B C").addToEachNoteToken("q i s w") --> "Aq Bi Cs" (same as "q i s")</li>
+	 * </ul>
+	 * @return this pattern for chaining
 	 */
-	public Pattern addToEachNoteElement(String decoratorString) {
-		StringBuilder b2 = new StringBuilder();
-		int currentDecorator = 0;
-		String[] decorators = decoratorString.split(" ");
-		String[] elements = patternSB.toString().split(" ");
-		for (String element : elements) {
-			if (NoteSubparser.getInstance().matches(element)) {
-				b2.append(element);
-				b2.append(decorators[currentDecorator++ % decorators.length]);
-			} else {
-				b2.append(element);
-			}
-			b2.append(" ");
-		}
+	public Pattern addToEachNoteToken(String decoratorString) {
+        int currentDecorator = 0;
+        String[] decorators = decoratorString.split(" ");
+
+	    StringBuilder b2 = new StringBuilder();
+
+	    List<Token> tokens = this.getTokens();
+	    for (Token token : tokens) {
+	        if (token.getType() == TokenType.NOTE) {
+	            b2.append(token);
+	            b2.append(decorators[currentDecorator++ % decorators.length]);
+	        } else {
+	            b2.append(token);
+	        }
+	        b2.append(" ");
+	    }
+	    
 		this.patternSB = new StringBuilder(b2.toString().trim());
 		return this;
 	}
 	
+	/**
+	 * Saves this pattern to a file (without any comments included).
+	 * @param file the file to save this pattern to.
+	 * @return the saved Pattern (for chaining)
+	 * @throws IOException
+	 */
 	public Pattern save(File file) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-		writer.write(this.toString());
-		writer.close();
-		return this;
+	    return save(file, (String)null);
 	}
 	
+	/**
+	 * Saves this pattern to a file, with comments written first, before the pattern.
+	 * @param file the file to save this pattern to.
+	 * @param comments different comments that will be included in the heading of the save file
+	 * @return the saved Pattern (for chaining)
+	 * @throws IOException in case of a problem when opening, writing or closing the file
+	 */
+	public Pattern save(File file, String... comments) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        if (comments.length > 0) {
+            writer.write("# \n");
+        }
+        for (String comment : comments) {
+            writer.write("# ");
+            writer.write(comment);
+            writer.write("\n");
+        }
+        if (comments.length > 0) {
+            writer.write("# \n\n");
+        }
+        writer.write(this.toString());
+        writer.close();
+        return this;
+	}
+	
+	/**
+	 * Reads a pattern from a file containing elements of a pattern (notes, voices, instruments, ...). 
+	 * Lines beginning with # are comments.
+	 *  
+	 * @param file the file to read
+	 * @return a Pattern
+	 * @throws IOException in case of a problem when opening, reading or closing the file.
+	 */
 	public static Pattern load(File file) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		Pattern pattern = new Pattern();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
-			pattern.add(line);
+		    if (!line.startsWith("#")) {
+		        pattern.add(line);
+		    }
 		}
 		reader.close();
 		return pattern;
+	}
+	
+	/** 
+	 * Parse this pattern and have the given ParserListener listen to it.
+	 * The user will need to call a function on the listener to get the result.
+	 * This method returns its own class, the contents of which ARE NOT modified by this call.
+	 */
+	public Pattern transform(ParserListener listener) {
+	    return parseAndListen(listener);
+	}
+	
+    /** 
+     * Parse this pattern and have the given ParserListener listen to it.
+     * The user will need to call a function on the listener to get the result.
+     * This method returns its own class, the contents of which ARE NOT modified by this call.
+     */
+	public Pattern measure(ParserListener listener) {
+	    return parseAndListen(listener);
+	}
+	
+    /** 
+     * Parse this pattern and have the given ParserListener listen to it.
+     * The user will need to call a function on the listener to get the result.
+     * This method returns its own class, the contents of which ARE NOT modified by this call.
+     */
+	private Pattern parseAndListen(ParserListener listener) {
+	    StaccatoParser parser = new StaccatoParser();
+	    parser.addParserListener(listener);
+	    parser.parse(getPattern());
+	    return this;
 	}
 	
 	private static final int UNDECLARED_EXPLICIT = -1;

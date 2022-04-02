@@ -25,6 +25,10 @@ public class NoteProviderFactory
 {
     private static NoteProvider noteProvider;
     
+    /**
+     * Fournit un NoteSubparser
+     * @return a NoteSubparser
+     */
     public static NoteProvider getNoteProvider() {
         if (noteProvider == null) {
             noteProvider = NoteSubparser.getInstance();

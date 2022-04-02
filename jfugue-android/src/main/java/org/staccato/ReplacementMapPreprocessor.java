@@ -36,11 +36,11 @@ public class ReplacementMapPreprocessor implements Preprocessor
 		return instance;
 	}
 
-	private static Pattern replacementPatternWithBrackets = Pattern.compile("<\\S+>");
-	private static Pattern replacementPatternWithoutBrackets = Pattern.compile("\\S+");
+	private static java.util.regex.Pattern replacementPatternWithBrackets = Pattern.compile("<\\S+>");
+	private static java.util.regex.Pattern replacementPatternWithoutBrackets = Pattern.compile("\\S+");
 	private Map<String, String> map;
 	private boolean requiresAngleBrackets = true;
-	private boolean caseSensitive = false;
+	private boolean caseSensitive = true;
 	private int iterations = 1;
 	
 	public ReplacementMapPreprocessor setRequireAngleBrackets(boolean require) {
@@ -80,7 +80,7 @@ public class ReplacementMapPreprocessor implements Preprocessor
 		return this.iterations;
 	}
 	
-	private Pattern getReplacementPattern() {
+	private java.util.regex.Pattern getReplacementPattern() {
 		return requiresAngleBrackets() ? replacementPatternWithBrackets : replacementPatternWithoutBrackets;
 	}
 	

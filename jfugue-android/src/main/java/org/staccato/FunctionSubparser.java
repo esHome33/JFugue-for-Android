@@ -19,6 +19,7 @@
 
 package org.staccato;
 
+import org.jfugue.pattern.Token.TokenType;
 import org.staccato.functions.FunctionManager;
 
 
@@ -40,6 +41,15 @@ public class FunctionSubparser implements Subparser
 		return music.charAt(0) == FUNCTION;
 	}
 
+    @Override
+    public TokenType getTokenType(String tokenString) {
+        if (tokenString.charAt(0) == FUNCTION) {
+            return TokenType.FUNCTION;
+        }
+        
+        return TokenType.UNKNOWN_TOKEN;
+    }	
+    
 	@Override
 	public int parse(String music, StaccatoParserContext context) {
 		if (music.charAt(0) == FUNCTION) {

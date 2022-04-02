@@ -21,6 +21,7 @@ package org.staccato.maps;
 
 import java.util.HashMap;
 
+@SuppressWarnings("serial")
 public class CarnaticReplacementMap extends HashMap<String, String> {{
 	put("S", "m261.6256");
 	put("R1", "m275.6220");

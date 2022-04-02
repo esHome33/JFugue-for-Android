@@ -3,9 +3,17 @@ package org.staccato;
 import org.jfugue.midi.MidiDefaults;
 import org.jfugue.theory.Note;
 
+/**
+ * Store for default values.
+ *
+ */
 public class DefaultNoteSettingsManager {
 	private static DefaultNoteSettingsManager instance;
 	
+	/**
+	 * Gets the unique instance of this class.
+	 * @return the unique DefaultNoteSettingsManager 
+	 */
 	public static DefaultNoteSettingsManager getInstance() {
 		if (instance == null) {
 			instance = new DefaultNoteSettingsManager();
@@ -18,11 +26,12 @@ public class DefaultNoteSettingsManager {
 	private double defaultDuration = DEFAULT_DEFAULT_DURATION;
 	private byte defaultOnVelocity = MidiDefaults.MIDI_DEFAULT_ON_VELOCITY;
 	private byte defaultOffVelocity = MidiDefaults.MIDI_DEFAULT_OFF_VELOCITY;
+	private boolean adjustNotesByKeySignature = DEFAULT_ADJUST_NOTES_BY_KEY_SIGNATURE;
 	
 	private DefaultNoteSettingsManager() { }
 	
 	public void setDefaultOctave(byte octave) {
-		assert (octave < Note.MIN_OCTAVE) || (octave > Note.MAX_OCTAVE);
+		assert (octave >= Note.MIN_OCTAVE) && (octave <= Note.MAX_OCTAVE);
 		this.defaultOctave = octave;
 	}
 
@@ -31,7 +40,7 @@ public class DefaultNoteSettingsManager {
 	}
 	
 	public void setDefaultBassOctave(byte octave) {
-		assert (octave < Note.MIN_OCTAVE) || (octave > Note.MAX_OCTAVE);
+		assert (octave >= Note.MIN_OCTAVE) && (octave <= Note.MAX_OCTAVE);
 		this.defaultBassOctave = octave;
 	}
 	
@@ -48,7 +57,7 @@ public class DefaultNoteSettingsManager {
 	}
 	
 	public void setDefaultOnVelocity(byte attack) {
-		assert (attack < MidiDefaults.MIN_ON_VELOCITY) || (attack > MidiDefaults.MAX_ON_VELOCITY);
+		assert (attack >= MidiDefaults.MIN_ON_VELOCITY) && (attack <= MidiDefaults.MAX_ON_VELOCITY);
 		this.defaultOnVelocity = attack;
 	}
 	
@@ -57,7 +66,7 @@ public class DefaultNoteSettingsManager {
 	}
 	
 	public void setDefaultOffVelocity(byte decay) {
-		assert (decay < MidiDefaults.MIN_OFF_VELOCITY) || (decay > MidiDefaults.MAX_OFF_VELOCITY);
+		assert (decay >= MidiDefaults.MIN_OFF_VELOCITY) && (decay <= MidiDefaults.MAX_OFF_VELOCITY);
 		this.defaultOffVelocity = decay;
 	}
 	
@@ -65,9 +74,21 @@ public class DefaultNoteSettingsManager {
 		return this.defaultOffVelocity;
 	}
 	
+	public boolean getAdjustNotesByKeySignature() {
+	    return this.adjustNotesByKeySignature;
+	}
+	
+	public void setAdjustNotesByKeySignature(boolean b) {
+	    this.adjustNotesByKeySignature = b;
+	}
+	
 	public static final byte DEFAULT_DEFAULT_OCTAVE = 5;
+	/**
+	 * Updated in JFugue5. In previous versions, bass was Octave 3
+	 */
 	public static final byte DEFAULT_DEFAULT_BASS_OCTAVE = 4; // Updated in JFugue5; in previous versions, bass was Octave 3
 	public static final double DEFAULT_DEFAULT_DURATION = 0.25d;
 	public static final byte DEFAULT_DEFAULT_ON_VELOCITY = MidiDefaults.MIDI_DEFAULT_ON_VELOCITY;
 	public static final byte DEFAULT_DEFAULT_OFF_VELOCITY = MidiDefaults.MIDI_DEFAULT_OFF_VELOCITY;
+	public static final boolean DEFAULT_ADJUST_NOTES_BY_KEY_SIGNATURE = true;
 }
