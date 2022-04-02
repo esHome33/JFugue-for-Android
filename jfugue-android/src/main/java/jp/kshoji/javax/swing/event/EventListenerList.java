@@ -124,7 +124,7 @@ public class EventListenerList implements Serializable {
             ClassNotFoundException {
         inStream.defaultReadObject();
 
-        ArrayList list = new ArrayList();
+        ArrayList<Object> list = new ArrayList<>();
         Object markerObject = null;
         while ((markerObject = inStream.readObject()) != null) {
             list.add(markerObject);

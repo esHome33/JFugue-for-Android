@@ -21,8 +21,14 @@ android {
 }
 
 repositories {
+    google()
     maven {
         url 'https://github.com/kshoji/javax.sound.midi-for-Android/raw/master/javax.sound.midi/repository'
+        metadataSources {
+            mavenPom()
+            artifact()
+            ignoreGradleMetadataRedirection()
+        }
     }
     mavenCentral()
 }
